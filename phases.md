@@ -39,28 +39,28 @@ Week 13   │ Launch — Production Deployment
 ### Tasks
 
 #### Repository & Project Init
-- [ ] Create GitHub repository with `main` and `dev` branches
+- [x] Create GitHub repository with `main` and `dev` branches
 - [ ] Set up branch protection rules on `main` (require PR + review)
-- [ ] Create `/client` folder — init React project with Vite
-- [ ] Create `/server` folder — init Node.js project with Express
-- [ ] Create root `.gitignore` covering both `/client` and `/server`
-- [ ] Create `.env.example` in `/server` with all required variable names
+- [x] Create `/client` folder — init React project with Vite
+- [x] Create `/server` folder — init Node.js project with Express
+- [x] Create root `.gitignore` covering both `/client` and `/server`
+- [x] Create `.env.example` in `/server` with all required variable names
 
 #### Client Setup
-- [ ] Install and configure Tailwind CSS
-- [ ] Install React Router v6
-- [ ] Install Zustand, Axios, React Hook Form, Zod
-- [ ] Install Recharts, React Big Calendar, React Hot Toast, shadcn/ui
-- [ ] Create base folder structure: `components/`, `pages/`, `services/`, `hooks/`, `utils/`, `store/`, `routes/`
-- [ ] Create `api.js` — Axios instance with base URL from `VITE_API_BASE_URL`
+- [x] Install and configure Tailwind CSS
+- [x] Install React Router v6
+- [x] Install Zustand, Axios, React Hook Form, Zod
+- [x] Install Recharts, React Big Calendar, React Hot Toast, shadcn/ui
+- [x] Create base folder structure: `components/`, `pages/`, `services/`, `hooks/`, `utils/`, `store/`, `routes/`
+- [x] Create `api.js` — Axios instance with base URL from `VITE_API_BASE_URL`
 
 #### Server Setup
-- [ ] Install Express, Prisma, bcrypt, jsonwebtoken, zod, cors, dotenv
-- [ ] Install express-rate-limit, cookie-parser, express-async-errors
-- [ ] Set up Prisma with Railway PostgreSQL `DATABASE_URL`
-- [ ] Create base folder structure: `modules/`, `middlewares/`, `config/`, `utils/`
-- [ ] Create `app.js` (Express app) and `server.js` (HTTP entry)
-- [ ] Connect Redis (Upstash) client in `config/redis.js`
+- [x] Install Express, Prisma, bcrypt, jsonwebtoken, zod, cors, dotenv
+- [x] Install express-rate-limit, cookie-parser, express-async-errors
+- [x] Set up Prisma with Railway PostgreSQL `DATABASE_URL`
+- [x] Create base folder structure: `modules/`, `middlewares/`, `config/`, `utils/`
+- [x] Create `app.js` (Express app) and `server.js` (HTTP entry)
+- [x] Connect Redis (Upstash) client in `config/redis.js`
 
 #### Cloud Setup
 - [ ] Create Railway project — add PostgreSQL plugin
@@ -560,7 +560,7 @@ Phase 0 (Setup)
 
 | Phase | Status | Start | End | Notes |
 |-------|--------|-------|-----|-------|
-| Phase 0 — Setup | ⬜ Not Started | — | — | — |
+| Phase 0 — Setup | 🟡 In Progress | July 14, 2026 | — | Client & Server scaffold complete; pending cloud setup |
 | Phase 1 — Foundation | ⬜ Not Started | — | — | — |
 | Phase 2 — Core Academic | ⬜ Not Started | — | — | — |
 | Phase 3 — Task Scheduler | ⬜ Not Started | — | — | — |
