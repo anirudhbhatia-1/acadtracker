@@ -63,8 +63,8 @@ Week 13   │ Launch — Production Deployment
 - [x] Connect Redis (Upstash) client in `config/redis.js`
 
 #### Cloud Setup
-- [ ] Create Railway project — add PostgreSQL plugin
-- [ ] Create Upstash Redis instance — copy connection URL
+- [x] Create Railway project — add PostgreSQL plugin
+- [x] Create Upstash Redis instance — copy connection URL
 - [ ] Connect GitHub repo to Railway (auto-deploy on push to `main`)
 - [ ] Connect GitHub repo to Vercel (auto-deploy on push to `main`)
 - [ ] Set all environment variables in Railway and Vercel dashboards
