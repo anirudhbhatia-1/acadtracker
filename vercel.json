@@ -1,0 +1,17 @@
+{
+  "services": {
+    "server": {
+      "root": "server",
+      "entrypoint": "server.js"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": {
+        "type": "service",
+        "service": "server"
+      }
+    }
+  ]
+}

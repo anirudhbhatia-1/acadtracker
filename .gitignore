@@ -29,3 +29,4 @@ prisma/dev.db
 
 # Temporary / Scratch
 scratch/
+.vercel
