@@ -7,4 +7,192 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// Models will be defined in Phase 1
+// Models defined as per architecture.md Section 5.2
+
+model User {
+  id              String       @id @default(cuid())
+  name            String
+  email           String       @unique
+  passwordHash    String
+  role            Role         @default(STUDENT)
+  profilePic      String?
+  courseId        String?
+  currentSemester Int?
+  isOnboarded     Boolean      @default(false)
+  createdAt       DateTime     @default(now())
+
+  attendance      Attendance[]
+  grades          Grade[]
+  tasks           Task[]
+  notes           Note[]
+  resources       Resource[]
+  course          Course?      @relation(fields: [courseId], references: [id])
+}
+
+enum Role {
+  STUDENT
+  ADMIN
+}
+
+model Course {
+  id             String    @id @default(cuid())
+  name           String
+  code           String    @unique
+  department     String
+  totalSemesters Int
+  createdAt      DateTime  @default(now())
+
+  subjects       Subject[]
+  students       User[]
+}
+
+model Subject {
+  id            String       @id @default(cuid())
+  name          String
+  code          String
+  courseId      String
+  semesterNo    Int
+  creditHours   Int          @default(0)
+  type          SubjectType  @default(THEORY)
+  isArchived    Boolean      @default(false)
+  createdAt     DateTime     @default(now())
+
+  course        Course       @relation(fields: [courseId], references: [id])
+  attendance    Attendance[]
+  grades        Grade[]
+  tasks         Task[]
+  notes         Note[]
+  resources     Resource[]
+}
+
+enum SubjectType {
+  THEORY
+  LAB
+  ELECTIVE
+  AUDIT
+}
+
+model Attendance {
+  id              String   @id @default(cuid())
+  studentId       String
+  subjectId       String
+  semesterNo      Int
+  totalClasses    Int      @default(0)
+  attendedClasses Int      @default(0)
+  updatedAt       DateTime @updatedAt
+
+  student         User     @relation(fields: [studentId], references: [id])
+  subject         Subject  @relation(fields: [subjectId], references: [id])
+
+  @@unique([studentId, subjectId, semesterNo])
+}
+
+model Grade {
+  id           String      @id @default(cuid())
+  studentId    String
+  subjectId    String
+  semesterNo   Int
+  letterGrade  LetterGrade
+  gradePoints  Float
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  student      User        @relation(fields: [studentId], references: [id])
+  subject      Subject     @relation(fields: [subjectId], references: [id])
+
+  @@unique([studentId, subjectId, semesterNo])
+}
+
+enum LetterGrade {
+  O
+  A_PLUS
+  A
+  B_PLUS
+  B
+  C
+  D
+  F
+}
+
+model Task {
+  id          String     @id @default(cuid())
+  userId      String
+  subjectId   String?
+  title       String
+  description String?
+  dueDate     DateTime
+  priority    Priority   @default(MEDIUM)
+  category    Category   @default(PERSONAL)
+  status      TaskStatus @default(TODO)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  user        User       @relation(fields: [userId], references: [id])
+  subject     Subject?   @relation(fields: [subjectId], references: [id])
+}
+
+enum Priority {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum Category {
+  ASSIGNMENT
+  EXAM
+  PROJECT
+  PERSONAL
+  OTHER
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+}
+
+model Note {
+  id         String   @id @default(cuid())
+  studentId  String
+  subjectId  String
+  semesterNo Int
+  title      String
+  content    String   @db.Text
+  tag        NoteTag  @default(GENERAL)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  student    User     @relation(fields: [studentId], references: [id])
+  subject    Subject  @relation(fields: [subjectId], references: [id])
+}
+
+enum NoteTag {
+  LECTURE_NOTES
+  SUMMARY
+  FORMULA_SHEET
+  REVISION
+  GENERAL
+}
+
+model Resource {
+  id         String       @id @default(cuid())
+  subjectId  String
+  addedById  String
+  semesterNo Int
+  title      String
+  url        String
+  type       ResourceType @default(OTHER)
+  isPinned   Boolean      @default(false)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  subject    Subject      @relation(fields: [subjectId], references: [id])
+  addedBy    User         @relation(fields: [addedById], references: [id])
+}
+
+enum ResourceType {
+  YOUTUBE
+  ARTICLE
+  GOOGLE_DRIVE
+  OTHER
+}
