@@ -1,0 +1,16 @@
+{
+  "name": "student-academic-platform",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Full-stack Student Academic Management Platform (React/Vite + Node/Express + Railway PostgreSQL + Upstash Redis)",
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "dev:server": "npm run dev --prefix server",
+    "dev:client": "npm run dev --prefix client",
+    "build": "npm run build --prefix client",
+    "seed": "npm run prisma:seed --prefix server"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
