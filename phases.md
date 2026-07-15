@@ -83,11 +83,11 @@ Week 13   │ Launch — Production Deployment
 
 ### 1.1 Database
 
-- [ ] Write full Prisma schema (all models: User, Course, Subject, Attendance, Grade, Task, Note, Resource)
-- [ ] Add all enums: Role, SubjectType, LetterGrade, Priority, Category, TaskStatus, NoteTag, ResourceType
-- [ ] Run first migration: `prisma migrate dev --name init_schema`
-- [ ] Write `prisma/seed.js` — create admin account using env credentials
-- [ ] Run seed script and verify admin exists in DB
+- [x] Write full Prisma schema (all models: User, Course, Subject, Attendance, Grade, Task, Note, Resource)
+- [x] Add all enums: Role, SubjectType, LetterGrade, Priority, Category, TaskStatus, NoteTag, ResourceType
+- [x] Run first migration: `prisma migrate dev --name init_schema`
+- [x] Write `prisma/seed.js` — create admin account using env credentials
+- [x] Run seed script and verify admin exists in DB
 
 ### 1.2 Backend — Auth Module
 
@@ -561,7 +561,7 @@ Phase 0 (Setup)
 | Phase | Status | Start | End | Notes |
 |-------|--------|-------|-----|-------|
 | Phase 0 — Setup | ✅ Complete | July 14, 2026 | July 15, 2026 | Client & Server scaffolded; Railway PostgreSQL & Upstash Redis verified |
-| Phase 1 — Foundation | ⬜ Not Started | — | — | — |
+| Phase 1 — Foundation | 🟡 In Progress | July 15, 2026 | — | Schema migrated (`init_schema`); admin account seeded (`cmrlofsrq...`) |
 | Phase 2 — Core Academic | ⬜ Not Started | — | — | — |
 | Phase 3 — Task Scheduler | ⬜ Not Started | — | — | — |
 | Phase 4 — Predictor + Resources | ⬜ Not Started | — | — | — |
