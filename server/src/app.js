@@ -18,18 +18,25 @@ const adminRoutes = require('./modules/admin/admin.routes');
 
 const app = express();
 
-// CORS Middleware — allow configured and local dev frontend origins
-const allowedOrigins = [
-  process.env.FRONTEND_URL,
-  'http://localhost:3000',
-  'http://127.0.0.1:3000',
-  'http://localhost:5173',
-  'http://127.0.0.1:5173',
-].filter(Boolean);
+// Trust reverse proxy when running on Railway / cloud platforms (required for express-rate-limit)
+app.set('trust proxy', 1);
 
+// CORS Middleware — allow configured and local dev frontend origins
 const corsOptions = {
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
+    const configuredUrl = (process.env.FRONTEND_URL || '').replace(/\/$/, '');
+    const cleanOrigin = (origin || '').replace(/\/$/, '');
+
+    if (
+      !origin ||
+      cleanOrigin === configuredUrl ||
+      cleanOrigin.endsWith('.vercel.app') ||
+      cleanOrigin === 'http://localhost:3000' ||
+      cleanOrigin === 'http://127.0.0.1:3000' ||
+      cleanOrigin === 'http://localhost:5173' ||
+      cleanOrigin === 'http://127.0.0.1:5173' ||
+      process.env.NODE_ENV !== 'production'
+    ) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
