@@ -6,6 +6,8 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import CourseSelection from './pages/CourseSelection';
 import StudentDashboard from './pages/StudentDashboard';
+import Attendance from './pages/Attendance';
+import Grades from './pages/Grades';
 import AdminDashboard from './pages/AdminDashboard';
 import ProtectedRoute from './routes/ProtectedRoute';
 import AdminRoute from './routes/AdminRoute';
@@ -42,6 +44,8 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/onboarding" element={<CourseSelection />} />
           <Route path="/student/dashboard" element={<StudentDashboard />} />
+          <Route path="/student/attendance" element={<Attendance />} />
+          <Route path="/student/grades" element={<Grades />} />
         </Route>
 
         {/* Admin routes */}

@@ -173,62 +173,62 @@ Week 13   │ Launch — Production Deployment
 
 ### 2.3 Backend — Grades Module
 
-- [ ] `GET /api/v1/grades/me` — get own grades (all semesters)
-- [ ] `POST /api/v1/grades` — enter/update a grade (student)
+- [x] `GET /api/v1/grades/me` — get own grades (all semesters)
+- [x] `POST /api/v1/grades` — enter/update a grade (student)
   - Derive `gradePoints` from `letterGrade` using `GRADE_POINTS` map
   - Upsert on `[studentId, subjectId, semesterNo]`
-- [ ] `GET /api/v1/grades/me/sgpa` — return SGPA per semester (calculated)
-- [ ] `GET /api/v1/grades/me/cgpa` — return current CGPA (calculated)
-- [ ] `GET /api/v1/grades/student/:id` — admin views student's grades
-- [ ] `PATCH /api/v1/grades/:id` — admin edits student grade
+- [x] `GET /api/v1/grades/me/sgpa` — return SGPA per semester (calculated)
+- [x] `GET /api/v1/grades/me/cgpa` — return current CGPA (calculated)
+- [x] `GET /api/v1/grades/student/:id` — admin views student's grades
+- [x] `PATCH /api/v1/grades/:id` — admin edits student grade
 
 ### 2.4 Backend — Attendance Module
 
-- [ ] `GET /api/v1/attendance/me` — get own attendance (all subjects)
+- [x] `GET /api/v1/attendance/me` — get own attendance (all subjects)
   - Include `classesNeededFor75` and `classesCanMiss` in response
-- [ ] `POST /api/v1/attendance/log` — student logs attendance for a subject (increment total + attended)
-- [ ] `PATCH /api/v1/attendance/:id` — student corrects attendance record
-- [ ] `GET /api/v1/attendance/student/:id` — admin views student's attendance
-- [ ] `PATCH /api/v1/attendance/student/:id/:subjectId` — admin edits attendance
-- [ ] `server/src/utils/attendanceUtils.js` — `getAttendanceSummary()` with all formulas
+- [x] `POST /api/v1/attendance/log` — student logs attendance for a subject (increment total + attended)
+- [x] `PATCH /api/v1/attendance/:id` — student corrects attendance record
+- [x] `GET /api/v1/attendance/student/:id` — admin views student's attendance
+- [x] `PATCH /api/v1/attendance/student/:id/:subjectId` — admin edits attendance
+- [x] `server/src/utils/attendanceUtils.js` — `getAttendanceSummary()` with all formulas
 
 ### 2.5 Frontend — Student Dashboard
 
-- [ ] `Dashboard.jsx` — summary cards:
+- [x] `Dashboard.jsx` — summary cards:
   - Current CGPA
   - Overall attendance health (% of subjects above 75%)
   - Pending tasks count
   - Next upcoming deadline
-- [ ] `SGPALineChart.jsx` — line chart showing SGPA per semester (Recharts)
-- [ ] Fetch data from `gradeService.js` and `attendanceService.js`
+- [x] `SGPALineChart.jsx` — line chart showing SGPA per semester (Recharts)
+- [x] Fetch data from `gradeService.js` and `attendanceService.js`
 
 ### 2.6 Frontend — Attendance Page
 
-- [ ] `Attendance.jsx` — table with one row per subject:
+- [x] `Attendance.jsx` — table with one row per subject:
   - Subject name, total classes, attended, percentage, status badge
   - "Classes to attend to reach 75%" display
   - "Classes you can still miss" display
-- [ ] `AttendanceBadge.jsx` — color-coded badge: 🟢 Safe / 🟡 Warning / 🔴 Critical
-- [ ] Log attendance button per subject — opens a modal to confirm
-- [ ] In-app toast alert if any subject drops below 75%
+- [x] `AttendanceBadge.jsx` — color-coded badge: 🟢 Safe / 🟡 Warning / 🔴 Critical
+- [x] Log attendance button per subject — opens a modal to confirm
+- [x] In-app toast alert if any subject drops below 75%
 
 ### 2.7 Frontend — Grades Page
 
-- [ ] `Grades.jsx` — semester tabs (Semester 1, 2, 3…)
+- [x] `Grades.jsx` — semester tabs (Semester 1, 2, 3…)
   - Each tab shows a table of subjects with letter grade dropdown
   - SGPA auto-displays at bottom of each tab as student enters grades
   - CGPA displays in the page header — updates live
-- [ ] `GradeRow.jsx` — single row: subject name, credit hours, grade dropdown
-- [ ] `SGPADisplay.jsx` — shows calculated SGPA for current semester
+- [x] `GradeRow.jsx` — single row: subject name, credit hours, grade dropdown
+- [x] `SGPADisplay.jsx` — shows calculated SGPA for current semester
 
 ### ✅ Phase 2 Done When
-- [ ] Student can log and view attendance per subject
-- [ ] Attendance % and helper values calculate correctly
-- [ ] In-app alert fires when attendance < 75%
-- [ ] Student can enter letter grades and SGPA auto-calculates
-- [ ] SGPA matches the confirmed grade card example (8.45)
-- [ ] CGPA updates correctly across multiple semesters
-- [ ] Admin can view and edit any student's grades and attendance
+- [x] Student can log and view attendance per subject
+- [x] Attendance % and helper values calculate correctly
+- [x] In-app alert fires when attendance < 75%
+- [x] Student can enter letter grades and SGPA auto-calculates
+- [x] SGPA matches the confirmed grade card example (8.45)
+- [x] CGPA updates correctly across multiple semesters
+- [x] Admin can view and edit any student's grades and attendance
 
 ---
 
