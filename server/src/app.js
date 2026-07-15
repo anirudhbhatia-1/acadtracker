@@ -4,6 +4,8 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const rateLimit = require('express-rate-limit');
 const errorHandler = require('./middlewares/errorHandler');
+const authRoutes = require('./modules/auth/auth.routes');
+const onboardingRoutes = require('./modules/onboarding/onboarding.routes');
 
 const app = express();
 
@@ -43,10 +45,9 @@ app.get('/api/v1/health', (req, res) => {
   });
 });
 
-// API Routes placeholder (to be mounted as modules are built)
-// app.use('/api/v1/auth', authRoutes);
-// app.use('/api/v1/onboarding', onboardingRoutes);
-// etc.
+// Mounted API Routes
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/onboarding', onboardingRoutes);
 
 // 404 handler for undefined endpoints
 app.use((req, res) => {

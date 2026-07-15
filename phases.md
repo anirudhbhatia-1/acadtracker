@@ -91,31 +91,31 @@ Week 13   │ Launch — Production Deployment
 
 ### 1.2 Backend — Auth Module
 
-- [ ] `POST /api/v1/auth/register` — student registration (name, email, password)
+- [x] `POST /api/v1/auth/register` — student registration (name, email, password)
   - Hash password with bcrypt (10 rounds)
   - Reject if email already exists
   - Return 201 + user object (no password hash)
-- [ ] `POST /api/v1/auth/login` — login for student and admin
+- [x] `POST /api/v1/auth/login` — login for student and admin
   - Verify email + bcrypt password
   - Sign JWT with userId, email, role
   - Set JWT in HTTP-only cookie
   - Return user object
-- [ ] `POST /api/v1/auth/logout` — clear the cookie
-- [ ] `GET /api/v1/auth/me` — return logged-in user profile
-- [ ] `PATCH /api/v1/auth/me` — update name or password
-- [ ] `auth.middleware.js` — verify JWT from cookie, attach `req.user`
-- [ ] `admin.middleware.js` — check `req.user.role === 'ADMIN'`
-- [ ] `validate.middleware.js` — Zod schema validation factory
-- [ ] `errorHandler.js` — centralized error response middleware
-- [ ] Add rate limiting (10 req/min) to all `/auth` routes
-- [ ] Configure CORS — allow only frontend URL from env
+- [x] `POST /api/v1/auth/logout` — clear the cookie
+- [x] `GET /api/v1/auth/me` — return logged-in user profile
+- [x] `PATCH /api/v1/auth/me` — update name or password
+- [x] `auth.middleware.js` — verify JWT from cookie, attach `req.user`
+- [x] `admin.middleware.js` — check `req.user.role === 'ADMIN'`
+- [x] `validate.middleware.js` — Zod schema validation factory
+- [x] `errorHandler.js` — centralized error response middleware
+- [x] Add rate limiting (10 req/min) to all `/auth` routes
+- [x] Configure CORS — allow only frontend URL from env
 
 ### 1.3 Backend — Onboarding Module
 
-- [ ] `POST /api/v1/onboarding/select-course` — set courseId + currentSemester on student
+- [x] `POST /api/v1/onboarding/select-course` — set courseId + currentSemester on student
   - Only allowed if `isOnboarded === false`
   - Mark `isOnboarded = true` on success
-- [ ] Protect route with `auth.middleware.js`
+- [x] Protect route with `auth.middleware.js`
 
 ### 1.4 Frontend — Auth Pages
 
@@ -561,7 +561,7 @@ Phase 0 (Setup)
 | Phase | Status | Start | End | Notes |
 |-------|--------|-------|-----|-------|
 | Phase 0 — Setup | ✅ Complete | July 14, 2026 | July 15, 2026 | Client & Server scaffolded; Railway PostgreSQL & Upstash Redis verified |
-| Phase 1 — Foundation | 🟡 In Progress | July 15, 2026 | — | Schema migrated (`init_schema`); admin account seeded (`cmrlofsrq...`) |
+| Phase 1 — Foundation | 🟡 In Progress | July 15, 2026 | — | Schema & Admin seed done; Auth & Onboarding APIs verified (Sections 1.1–1.3 complete) |
 | Phase 2 — Core Academic | ⬜ Not Started | — | — | — |
 | Phase 3 — Task Scheduler | ⬜ Not Started | — | — | — |
 | Phase 4 — Predictor + Resources | ⬜ Not Started | — | — | — |
