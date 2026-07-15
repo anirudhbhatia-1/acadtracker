@@ -6,6 +6,7 @@ const rateLimit = require('express-rate-limit');
 const errorHandler = require('./middlewares/errorHandler');
 const authRoutes = require('./modules/auth/auth.routes');
 const onboardingRoutes = require('./modules/onboarding/onboarding.routes');
+const coursesRoutes = require('./modules/courses/courses.routes');
 
 const app = express();
 
@@ -48,6 +49,7 @@ app.get('/api/v1/health', (req, res) => {
 // Mounted API Routes
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/onboarding', onboardingRoutes);
+app.use('/api/v1/courses', coursesRoutes);
 
 // 404 handler for undefined endpoints
 app.use((req, res) => {

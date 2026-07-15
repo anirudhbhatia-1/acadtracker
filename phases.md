@@ -119,32 +119,32 @@ Week 13   │ Launch — Production Deployment
 
 ### 1.4 Frontend — Auth Pages
 
-- [ ] `Login.jsx` — email + password form with React Hook Form + Zod
+- [x] `Login.jsx` — email + password form with React Hook Form + Zod
   - Show error if credentials wrong
   - Redirect to `/student/dashboard` or `/admin/dashboard` based on role
-- [ ] `Register.jsx` — name, email, password, confirm password
+- [x] `Register.jsx` — name, email, password, confirm password
   - Show inline validation errors
   - Redirect to `/onboarding` after success
-- [ ] `authService.js` — `login()`, `register()`, `logout()`, `getMe()`
-- [ ] `authStore.js` (Zustand) — store user object globally
-- [ ] `ProtectedRoute.jsx` — redirect to `/login` if no valid JWT
-- [ ] `AdminRoute.jsx` — redirect to `/student/dashboard` if not admin
+- [x] `authService.js` — `login()`, `register()`, `logout()`, `getMe()`
+- [x] `authStore.js` (Zustand) — store user object globally
+- [x] `ProtectedRoute.jsx` — redirect to `/login` if no valid JWT
+- [x] `AdminRoute.jsx` — redirect to `/student/dashboard` if not admin
 
 ### 1.5 Frontend — Course Selection (Onboarding)
 
-- [ ] `CourseSelection.jsx` — show list of available courses as cards
+- [x] `CourseSelection.jsx` — show list of available courses as cards
   - Student selects course + current semester
   - Confirm selection — call `POST /onboarding/select-course`
   - Redirect to `/student/dashboard` after confirm
-- [ ] Block access to this page if `isOnboarded === true`
+- [x] Block access to this page if `isOnboarded === true`
 
 ### ✅ Phase 1 Done When
-- [ ] Student can register, login, and land on dashboard
-- [ ] Admin can login with pre-seeded credentials
-- [ ] Student is prompted to select course on first login
-- [ ] JWT is stored in HTTP-only cookie and verified on every request
-- [ ] Admin-only routes return 403 when accessed by a student
-- [ ] All DB models exist and are migrated on Railway PostgreSQL
+- [x] Student can register, login, and land on dashboard
+- [x] Admin can login with pre-seeded credentials
+- [x] Student is prompted to select course on first login
+- [x] JWT is stored in HTTP-only cookie and verified on every request
+- [x] Admin-only routes return 403 when accessed by a student
+- [x] All DB models exist and are migrated on Railway PostgreSQL
 
 ---
 
@@ -561,7 +561,7 @@ Phase 0 (Setup)
 | Phase | Status | Start | End | Notes |
 |-------|--------|-------|-----|-------|
 | Phase 0 — Setup | ✅ Complete | July 14, 2026 | July 15, 2026 | Client & Server scaffolded; Railway PostgreSQL & Upstash Redis verified |
-| Phase 1 — Foundation | 🟡 In Progress | July 15, 2026 | — | Schema & Admin seed done; Auth & Onboarding APIs verified (Sections 1.1–1.3 complete) |
+| Phase 1 — Foundation | ✅ Complete | July 15, 2026 | July 15, 2026 | Full Prisma schema migrated & seeded; Backend Auth/Onboarding APIs built & tested; Frontend Auth pages, Onboarding, Zustand store & Protected/Admin routes verified |
 | Phase 2 — Core Academic | ⬜ Not Started | — | — | — |
 | Phase 3 — Task Scheduler | ⬜ Not Started | — | — | — |
 | Phase 4 — Predictor + Resources | ⬜ Not Started | — | — | — |
