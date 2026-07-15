@@ -154,22 +154,22 @@ Week 13   │ Launch — Production Deployment
 
 ### 2.1 Backend — Course & Subject Module
 
-- [ ] `GET /api/v1/courses` — list all courses (public to all auth users)
-- [ ] `POST /api/v1/courses` — admin creates course
-- [ ] `PATCH /api/v1/courses/:id` — admin edits course
-- [ ] `DELETE /api/v1/courses/:id` — admin deletes course
-- [ ] `GET /api/v1/courses/:id/subjects` — get subjects (filter by `?semester=`)
-- [ ] `POST /api/v1/courses/:id/subjects` — admin creates subject
-- [ ] `PATCH /api/v1/subjects/:id` — admin edits subject
-- [ ] `DELETE /api/v1/subjects/:id` — admin archives subject (`isArchived = true`)
+- [x] `GET /api/v1/courses` — list all courses (public to all auth users)
+- [x] `POST /api/v1/courses` — admin creates course
+- [x] `PATCH /api/v1/courses/:id` — admin edits course
+- [x] `DELETE /api/v1/courses/:id` — admin deletes course
+- [x] `GET /api/v1/courses/:id/subjects` — get subjects (filter by `?semester=`)
+- [x] `POST /api/v1/courses/:id/subjects` — admin creates subject
+- [x] `PATCH /api/v1/subjects/:id` — admin edits subject
+- [x] `DELETE /api/v1/subjects/:id` — admin archives subject (`isArchived = true`)
 
 ### 2.2 Backend — Grade Engine
 
-- [ ] `server/src/utils/gradeMap.js` — define `GRADE_POINTS` constant object
-- [ ] `server/src/modules/grades/gradeEngine.js`
+- [x] `server/src/utils/gradeMap.js` — define `GRADE_POINTS` constant object
+- [x] `server/src/modules/grades/gradeEngine.js`
   - `calculateSGPA(subjects)` — exclude 0-credit subjects
   - `calculateCGPA(semesters)` — weighted average across semesters
-- [ ] Unit test both functions against the confirmed grade card example (SGPA = 8.45)
+- [x] Unit test both functions against the confirmed grade card example (SGPA = 8.45)
 
 ### 2.3 Backend — Grades Module
 
@@ -562,7 +562,7 @@ Phase 0 (Setup)
 |-------|--------|-------|-----|-------|
 | Phase 0 — Setup | ✅ Complete | July 14, 2026 | July 15, 2026 | Client & Server scaffolded; Railway PostgreSQL & Upstash Redis verified |
 | Phase 1 — Foundation | ✅ Complete | July 15, 2026 | July 15, 2026 | Full Prisma schema migrated & seeded; Backend Auth/Onboarding APIs built & tested; Frontend Auth pages, Onboarding, Zustand store & Protected/Admin routes verified |
-| Phase 2 — Core Academic | ⬜ Not Started | — | — | — |
+| Phase 2 — Core Academic | 🟡 In Progress | July 15, 2026 | — | Course/Subject CRUD & Grade Engine completed & verified (`SGPA = 8.45`) |
 | Phase 3 — Task Scheduler | ⬜ Not Started | — | — | — |
 | Phase 4 — Predictor + Resources | ⬜ Not Started | — | — | — |
 | Phase 5 — Admin Tools | ⬜ Not Started | — | — | — |

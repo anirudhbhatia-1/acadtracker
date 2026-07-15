@@ -8,6 +8,8 @@ const authRoutes = require('./modules/auth/auth.routes');
 const onboardingRoutes = require('./modules/onboarding/onboarding.routes');
 const coursesRoutes = require('./modules/courses/courses.routes');
 const subjectsRoutes = require('./modules/subjects/subjects.routes');
+const gradesRoutes = require('./modules/grades/grades.routes');
+const attendanceRoutes = require('./modules/attendance/attendance.routes');
 
 const app = express();
 
@@ -52,6 +54,8 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/onboarding', onboardingRoutes);
 app.use('/api/v1/courses', coursesRoutes);
 app.use('/api/v1/subjects', subjectsRoutes);
+app.use('/api/v1/grades', gradesRoutes);
+app.use('/api/v1/attendance', attendanceRoutes);
 
 // 404 handler for undefined endpoints
 app.use((req, res) => {
