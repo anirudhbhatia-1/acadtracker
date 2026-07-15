@@ -560,7 +560,7 @@ Phase 0 (Setup)
 
 | Phase | Status | Start | End | Notes |
 |-------|--------|-------|-----|-------|
-| Phase 0 — Setup | 🟡 In Progress | July 14, 2026 | — | Client & Server scaffold complete; pending cloud setup |
+| Phase 0 — Setup | ✅ Complete | July 14, 2026 | July 15, 2026 | Client & Server scaffolded; Railway PostgreSQL & Upstash Redis verified |
 | Phase 1 — Foundation | ⬜ Not Started | — | — | — |
 | Phase 2 — Core Academic | ⬜ Not Started | — | — | — |
 | Phase 3 — Task Scheduler | ⬜ Not Started | — | — | — |
