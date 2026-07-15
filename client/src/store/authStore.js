@@ -22,9 +22,11 @@ const useAuthStore = create((set, get) => ({
           isLoading: false,
         });
       } else {
+        if (typeof window !== 'undefined') localStorage.removeItem('token');
         set({ user: null, isAuthenticated: false, isLoading: false });
       }
     } catch (error) {
+      if (typeof window !== 'undefined') localStorage.removeItem('token');
       set({
         user: null,
         isAuthenticated: false,
@@ -41,6 +43,9 @@ const useAuthStore = create((set, get) => ({
     try {
       const response = await authService.login(email, password);
       const user = response.data.user;
+      if (response.data.token && typeof window !== 'undefined') {
+        localStorage.setItem('token', response.data.token);
+      }
       set({
         user,
         isAuthenticated: true,
@@ -68,6 +73,9 @@ const useAuthStore = create((set, get) => ({
       // Auto login right after registration so cookie is set and state is populated
       const loginResponse = await authService.login(email, password);
       const user = loginResponse.data.user;
+      if (loginResponse.data.token && typeof window !== 'undefined') {
+        localStorage.setItem('token', loginResponse.data.token);
+      }
       set({
         user,
         isAuthenticated: true,
@@ -95,6 +103,7 @@ const useAuthStore = create((set, get) => ({
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
+      if (typeof window !== 'undefined') localStorage.removeItem('token');
       set({
         user: null,
         isAuthenticated: false,

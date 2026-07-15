@@ -40,7 +40,7 @@ const sendTokenResponse = (user, statusCode, res, message) => {
     course: user.course || null,
   };
 
-  return responseHelper.success(res, { user: userResponse }, message, statusCode);
+  return responseHelper.success(res, { user: userResponse, token }, message, statusCode);
 };
 
 /**
