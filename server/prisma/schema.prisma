@@ -25,6 +25,9 @@ model User {
   notes           Note[]
   resourcesAdded  Resource[]
   course          Course?      @relation(fields: [courseId], references: [id], onDelete: SetNull)
+
+  @@index([role])
+  @@index([courseId])
 }
 
 enum Role {
@@ -63,6 +66,8 @@ model Subject {
   resources     Resource[]
 
   @@unique([courseId, code])
+  @@index([courseId])
+  @@index([semesterNo])
 }
 
 enum SubjectType {
@@ -85,6 +90,9 @@ model Attendance {
   subject         Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, subjectId, semesterNo])
+  @@index([studentId])
+  @@index([subjectId])
+  @@index([semesterNo])
 }
 
 model Grade {
@@ -101,6 +109,9 @@ model Grade {
   subject      Subject     @relation(fields: [subjectId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, subjectId, semesterNo])
+  @@index([studentId])
+  @@index([subjectId])
+  @@index([semesterNo])
 }
 
 enum LetterGrade {
@@ -129,6 +140,9 @@ model Task {
 
   user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   subject     Subject?    @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([subjectId])
 }
 
 enum Priority {
@@ -164,6 +178,10 @@ model Note {
 
   student     User      @relation(fields: [studentId], references: [id], onDelete: Cascade)
   subject     Subject   @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([subjectId])
+  @@index([semesterNo])
 }
 
 enum NoteTag {
@@ -188,6 +206,10 @@ model Resource {
 
   subject      Subject      @relation(fields: [subjectId], references: [id], onDelete: Cascade)
   addedBy      User         @relation(fields: [addedById], references: [id], onDelete: Cascade)
+
+  @@index([subjectId])
+  @@index([addedById])
+  @@index([semesterNo])
 }
 
 enum ResourceType {

@@ -7,7 +7,7 @@ const statusEnum = z.enum(['TODO', 'IN_PROGRESS', 'DONE']);
 const createTaskSchema = z.object({
   body: z.object({
     title: z.string().min(2, 'Title must be at least 2 characters'),
-    description: z.string().optional(),
+    description: z.string().optional().nullable(),
     dueDate: z.string().or(z.date()).transform((val) => new Date(val)),
     priority: priorityEnum.default('MEDIUM'),
     category: categoryEnum.default('PERSONAL'),
@@ -30,7 +30,7 @@ const updateTaskSchema = z.object({
 const broadcastTaskSchema = z.object({
   body: z.object({
     title: z.string().min(2, 'Title must be at least 2 characters'),
-    description: z.string().optional(),
+    description: z.string().optional().nullable(),
     dueDate: z.string().or(z.date()).transform((val) => new Date(val)),
     priority: priorityEnum.default('HIGH'),
     category: categoryEnum.default('ASSIGNMENT'),

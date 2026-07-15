@@ -93,37 +93,37 @@ const TaskModal = ({ isOpen, onClose, taskToEdit, defaultDate }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
       <div
-        className="relative w-full max-w-lg bg-card border border-border rounded-2xl shadow-2xl overflow-hidden"
+        className="relative w-full max-w-lg bg-surface border border-border rounded-lg shadow-2xl overflow-hidden text-foreground"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-muted/30">
-          <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-surface-2">
+          <h3 className="text-base font-bold text-foreground flex items-center gap-2">
             {taskToEdit ? (
               <>
-                <CheckCircle2 className="w-5 h-5 text-primary" /> Edit Task
+                <CheckCircle2 className="w-5 h-5 text-ink dark:text-chalk-teal" /> Edit Task
               </>
             ) : (
               <>
-                <Calendar className="w-5 h-5 text-primary" /> Create New Task
+                <Calendar className="w-5 h-5 text-ink dark:text-chalk-teal" /> Create New Task
               </>
             )}
           </h3>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+            className="p-1.5 rounded-md text-text-muted hover:text-foreground hover:bg-surface transition-colors cursor-pointer"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Modal Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
-            <label className="block text-xs font-semibold uppercase text-muted-foreground mb-1.5">
-              Task Title <span className="text-rose-500">*</span>
+            <label className="block text-xs font-semibold uppercase text-text-muted mb-1.5">
+              Task Title <span className="text-status-critical">*</span>
             </label>
             <input
               type="text"
@@ -131,12 +131,12 @@ const TaskModal = ({ isOpen, onClose, taskToEdit, defaultDate }) => {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Complete CS104 Assignment 2"
-              className="w-full bg-background border border-input rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-input transition-all"
+              className="w-full bg-surface border border-border rounded-md px-3.5 py-2 text-xs text-foreground placeholder:text-text-soft focus:outline-none focus:ring-2 focus:ring-ink dark:focus:ring-chalk-teal transition-all"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase text-muted-foreground mb-1.5">
+            <label className="block text-xs font-semibold uppercase text-text-muted mb-1.5">
               Description / Notes
             </label>
             <textarea
@@ -144,32 +144,32 @@ const TaskModal = ({ isOpen, onClose, taskToEdit, defaultDate }) => {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Add key instructions, links, or bullet points..."
-              className="w-full bg-background border border-input rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-input transition-all resize-none"
+              className="w-full bg-surface border border-border rounded-md px-3.5 py-2 text-xs text-foreground placeholder:text-text-soft focus:outline-none focus:ring-2 focus:ring-ink dark:focus:ring-chalk-teal transition-all resize-none"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold uppercase text-muted-foreground mb-1.5 flex items-center gap-1.5">
-                <Calendar className="w-3.5 h-3.5 text-primary" /> Due Date & Time <span className="text-rose-500">*</span>
+              <label className="block text-xs font-semibold uppercase text-text-muted mb-1.5 flex items-center gap-1.5">
+                <Calendar className="w-3.5 h-3.5 text-ink dark:text-chalk-teal" /> Due Date & Time <span className="text-status-critical">*</span>
               </label>
               <input
                 type="datetime-local"
                 required
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
-                className="w-full bg-background border border-input rounded-xl px-3.5 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-input transition-all cursor-pointer"
+                className="w-full bg-surface border border-border rounded-md px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-ink dark:focus:ring-chalk-teal transition-all cursor-pointer"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase text-muted-foreground mb-1.5 flex items-center gap-1.5">
-                <BookOpen className="w-3.5 h-3.5 text-indigo-500" /> Linked Subject
+              <label className="block text-xs font-semibold uppercase text-text-muted mb-1.5 flex items-center gap-1.5">
+                <BookOpen className="w-3.5 h-3.5 text-ink dark:text-chalk-teal" /> Linked Subject
               </label>
               <select
                 value={subjectId}
                 onChange={(e) => setSubjectId(e.target.value)}
-                className="w-full bg-background border border-input rounded-xl px-3.5 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-input transition-all cursor-pointer"
+                className="w-full bg-surface border border-border rounded-md px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-ink dark:focus:ring-chalk-teal transition-all cursor-pointer"
               >
                 <option value="">-- No Subject (General) --</option>
                 {subjects.map((sub) => (
@@ -183,13 +183,13 @@ const TaskModal = ({ isOpen, onClose, taskToEdit, defaultDate }) => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold uppercase text-muted-foreground mb-1.5 flex items-center gap-1.5">
-                <Flag className="w-3.5 h-3.5 text-rose-500" /> Priority
+              <label className="block text-xs font-semibold uppercase text-text-muted mb-1.5 flex items-center gap-1.5">
+                <Flag className="w-3.5 h-3.5 text-status-critical" /> Priority
               </label>
               <select
                 value={priority}
                 onChange={(e) => setPriority(e.target.value)}
-                className="w-full bg-background border border-input rounded-xl px-3.5 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-input transition-all cursor-pointer"
+                className="w-full bg-surface border border-border rounded-md px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-ink dark:focus:ring-chalk-teal transition-all cursor-pointer"
               >
                 <option value="HIGH">🔴 High Priority</option>
                 <option value="MEDIUM">🟡 Medium Priority</option>
@@ -198,13 +198,13 @@ const TaskModal = ({ isOpen, onClose, taskToEdit, defaultDate }) => {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase text-muted-foreground mb-1.5 flex items-center gap-1.5">
-                <Tag className="w-3.5 h-3.5 text-amber-500" /> Category
+              <label className="block text-xs font-semibold uppercase text-text-muted mb-1.5 flex items-center gap-1.5">
+                <Tag className="w-3.5 h-3.5 text-status-warning" /> Category
               </label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full bg-background border border-input rounded-xl px-3.5 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-input transition-all cursor-pointer"
+                className="w-full bg-surface border border-border rounded-md px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-ink dark:focus:ring-chalk-teal transition-all cursor-pointer"
               >
                 <option value="ASSIGNMENT">Assignment</option>
                 <option value="EXAM">Exam / Quiz</option>
@@ -217,13 +217,13 @@ const TaskModal = ({ isOpen, onClose, taskToEdit, defaultDate }) => {
 
           {taskToEdit && (
             <div>
-              <label className="block text-xs font-semibold uppercase text-muted-foreground mb-1.5">
+              <label className="block text-xs font-semibold uppercase text-text-muted mb-1.5">
                 Current Status
               </label>
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
-                className="w-full bg-background border border-input rounded-xl px-3.5 py-2 text-sm font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-input transition-all cursor-pointer"
+                className="w-full bg-surface border border-border rounded-md px-3 py-2 text-xs font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-ink dark:focus:ring-chalk-teal transition-all cursor-pointer"
               >
                 <option value="TODO">To Do</option>
                 <option value="IN_PROGRESS">In Progress</option>
@@ -240,18 +240,18 @@ const TaskModal = ({ isOpen, onClose, taskToEdit, defaultDate }) => {
                 variant="outline"
                 onClick={handleDelete}
                 disabled={isSubmitting}
-                className="text-rose-500 hover:text-rose-600 hover:bg-rose-500/10 border-rose-500/20 text-xs font-bold"
+                className="text-status-critical hover:text-status-critical hover:bg-status-critical/10 border-status-critical/20 text-xs font-bold"
               >
                 <Trash2 className="w-4 h-4 mr-1.5" /> Delete Task
               </Button>
             ) : (
               <div />
             )}
-            <div className="flex items-center gap-3">
-              <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
+            <div className="flex items-center gap-2">
+              <Button type="button" variant="outline" size="sm" onClick={onClose} disabled={isSubmitting}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting} className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-6">
+              <Button type="submit" variant="default" size="sm" disabled={isSubmitting}>
                 {isSubmitting ? 'Saving...' : taskToEdit ? 'Save Changes' : 'Create Task'}
               </Button>
             </div>

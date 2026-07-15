@@ -1,5 +1,6 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
 
 const LETTER_GRADES = [
   { label: 'O (10 Pts)', value: 'O' },
@@ -23,37 +24,34 @@ const GradeRow = ({ subject, currentGrade, onGradeChange, disabled }) => {
   };
 
   return (
-    <tr className="border-b border-border hover:bg-muted/30 transition-colors">
-      <td className="py-4 px-4">
-        <div className="font-semibold text-foreground">{subject.name}</div>
-        <div className="text-xs font-mono text-muted-foreground mt-0.5">
-          {subject.code} • {subject.type}
+    <tr className="border-b border-border transition-colors even:bg-surface-2/60 hover:bg-surface-2">
+      <td className="py-3.5 px-4 align-middle">
+        <div className="text-[13.5px] font-semibold text-foreground">{subject.name}</div>
+        <div className="mono text-[11px] text-text-muted mt-0.5">
+          {subject.code} · {subject.type}
         </div>
       </td>
-      <td className="py-4 px-4 text-center">
-        <span
-          className={cn(
-            'inline-flex items-center px-2 py-1 rounded-md text-xs font-semibold',
-            isZeroCredit
-              ? 'bg-amber-500/10 text-amber-600 border border-amber-500/20'
-              : 'bg-primary/10 text-primary border border-primary/20'
-          )}
-        >
-          {subject.creditHours} {isZeroCredit && '(Audit/0 CR)'}
-        </span>
+      <td className="py-3.5 px-4 text-center align-middle">
+        {isZeroCredit ? (
+          <Badge variant="info" showIcon={false}>Audit / 0 CR</Badge>
+        ) : (
+          <span className="mono text-xs font-semibold px-2 py-1 rounded bg-surface-2 text-foreground border border-border">
+            {subject.creditHours} CR
+          </span>
+        )}
       </td>
-      <td className="py-4 px-4 text-right">
+      <td className="py-3.5 px-4 text-right align-middle">
         <select
           value={currentGrade || ''}
           onChange={handleChange}
           disabled={disabled}
-          className="bg-background border border-input rounded-lg px-3 py-1.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-ring focus:border-input transition-all disabled:opacity-50 cursor-pointer"
+          className="mono text-[12.5px] py-1.5 px-3 rounded-md border border-border bg-surface text-foreground focus:outline-none focus:ring-2 focus:ring-ink dark:focus:ring-chalk-teal transition-all disabled:opacity-50 cursor-pointer"
         >
           <option value="" disabled>
             -- Select Grade --
           </option>
           {LETTER_GRADES.map((g) => (
-            <option key={g.value} value={g.value}>
+            <option key={g.value} value={g.value} className="bg-surface text-foreground">
               {g.label}
             </option>
           ))}

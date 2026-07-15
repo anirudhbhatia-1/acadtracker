@@ -7,7 +7,7 @@ import CalendarView from '@/components/CalendarView';
 import KanbanBoard from '@/components/KanbanBoard';
 import TaskModal from '@/components/TaskModal';
 import Button from '@/components/ui/button';
-import { ListFilter, Calendar as CalendarIcon, LayoutGrid, Plus, CheckSquare, Clock } from 'lucide-react';
+import { ListFilter, Calendar as CalendarIcon, LayoutGrid, Plus, CheckSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const Tasks = () => {
@@ -49,100 +49,90 @@ const Tasks = () => {
   const overdueTasks = tasks.filter((t) => t.isOverdue && t.status !== 'DONE').length;
 
   return (
-    <div className="min-h-screen bg-background text-foreground pb-16">
-      {/* Page Banner / Header */}
-      <div className="border-b border-border bg-card/40 backdrop-blur-md sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2">
-                <div className="p-2 rounded-xl bg-primary/10 text-primary">
-                  <CheckSquare className="w-6 h-6" />
-                </div>
-                <div>
-                  <h1 className="text-xl sm:text-2xl font-black tracking-tight">
-                    Tasks & Assignments
-                  </h1>
-                  <p className="text-xs text-muted-foreground font-medium">
-                    Manage upcoming coursework, exams, and project milestones
-                  </p>
-                </div>
-              </div>
-            </div>
+    <div className="space-y-6 animate-in fade-in-50 duration-200">
+      {/* Header & Segmented View Toggle (§7.7) */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="font-display text-2xl font-semibold text-foreground tracking-tight flex items-center gap-2.5">
+            <CheckSquare className="w-6 h-6 text-ink dark:text-chalk-teal" />
+            Task Scheduler & Board
+          </h1>
+          <p className="text-sm text-text-muted mt-0.5">
+            Organize coursework assignments, exams, and project milestones across multiple views.
+          </p>
+        </div>
 
-            {/* View Toggles & Add Button */}
-            <div className="flex items-center gap-3 flex-wrap">
-              <div className="inline-flex p-1 rounded-xl bg-muted/60 border border-border">
-                <button
-                  onClick={() => setActiveView('LIST')}
-                  className={cn(
-                    'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer',
-                    activeView === 'LIST'
-                      ? 'bg-background text-foreground shadow-sm'
-                      : 'text-muted-foreground hover:text-foreground'
-                  )}
-                >
-                  <ListFilter className="w-3.5 h-3.5" /> List
-                </button>
-                <button
-                  onClick={() => setActiveView('CALENDAR')}
-                  className={cn(
-                    'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer',
-                    activeView === 'CALENDAR'
-                      ? 'bg-background text-foreground shadow-sm'
-                      : 'text-muted-foreground hover:text-foreground'
-                  )}
-                >
-                  <CalendarIcon className="w-3.5 h-3.5" /> Calendar
-                </button>
-                <button
-                  onClick={() => setActiveView('KANBAN')}
-                  className={cn(
-                    'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer',
-                    activeView === 'KANBAN'
-                      ? 'bg-background text-foreground shadow-sm'
-                      : 'text-muted-foreground hover:text-foreground'
-                  )}
-                >
-                  <LayoutGrid className="w-3.5 h-3.5" /> Kanban
-                </button>
-              </div>
-
-              <Button
-                onClick={() => handleOpenCreateModal()}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-xs px-4 py-2 rounded-xl shadow-md flex items-center gap-1.5"
-              >
-                <Plus className="w-4 h-4 stroke-[3]" /> Add Task
-              </Button>
-            </div>
+        <div className="flex items-center gap-3">
+          {/* Segmented Control (`.seg` per §7.7 & student-platform-mockup.html lines 132-136) */}
+          <div className="inline-flex bg-surface-2 border border-border rounded-lg p-1">
+            <button
+              onClick={() => setActiveView('KANBAN')}
+              className={cn(
+                'flex items-center gap-1.5 py-1.5 px-3.5 rounded-md text-xs font-semibold transition-all',
+                activeView === 'KANBAN'
+                  ? 'bg-surface text-foreground shadow-xs'
+                  : 'text-text-muted hover:text-foreground'
+              )}
+            >
+              <LayoutGrid className="w-3.5 h-3.5" /> Kanban
+            </button>
+            <button
+              onClick={() => setActiveView('LIST')}
+              className={cn(
+                'flex items-center gap-1.5 py-1.5 px-3.5 rounded-md text-xs font-semibold transition-all',
+                activeView === 'LIST'
+                  ? 'bg-surface text-foreground shadow-xs'
+                  : 'text-text-muted hover:text-foreground'
+              )}
+            >
+              <ListFilter className="w-3.5 h-3.5" /> List
+            </button>
+            <button
+              onClick={() => setActiveView('CALENDAR')}
+              className={cn(
+                'flex items-center gap-1.5 py-1.5 px-3.5 rounded-md text-xs font-semibold transition-all',
+                activeView === 'CALENDAR'
+                  ? 'bg-surface text-foreground shadow-xs'
+                  : 'text-text-muted hover:text-foreground'
+              )}
+            >
+              <CalendarIcon className="w-3.5 h-3.5" /> Calendar
+            </button>
           </div>
 
-          {/* Quick Metrics Strip */}
-          <div className="grid grid-cols-3 gap-3 mt-6 pt-4 border-t border-border/60 text-center sm:text-left">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-4 py-2 rounded-xl bg-background/50 border border-border/40">
-              <span className="text-xs font-semibold text-muted-foreground">Total Tasks</span>
-              <span className="text-base font-black text-foreground">{totalTasks}</span>
-            </div>
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-4 py-2 rounded-xl bg-background/50 border border-border/40">
-              <span className="text-xs font-semibold text-muted-foreground">Completed</span>
-              <span className="text-base font-black text-emerald-500">{completedTasks}</span>
-            </div>
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-4 py-2 rounded-xl bg-background/50 border border-border/40">
-              <span className="text-xs font-semibold text-muted-foreground">Overdue</span>
-              <span className={cn('text-base font-black', overdueTasks > 0 ? 'text-rose-500 animate-pulse' : 'text-foreground')}>
-                {overdueTasks}
-              </span>
-            </div>
-          </div>
+          <Button
+            onClick={() => handleOpenCreateModal()}
+            className="shrink-0"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Add Task</span>
+          </Button>
         </div>
       </div>
 
-      {/* Main View Area */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+      {/* Quick Summary Strip */}
+      <div className="grid grid-cols-3 gap-4 p-4 rounded-lg bg-surface border border-border shadow-sm">
+        <div>
+          <span className="text-xs font-semibold text-text-muted uppercase block">Total Tasks</span>
+          <span className="mono text-xl font-bold text-foreground">{totalTasks}</span>
+        </div>
+        <div>
+          <span className="text-xs font-semibold text-text-muted uppercase block">Completed</span>
+          <span className="mono text-xl font-bold text-status-safe">{completedTasks}</span>
+        </div>
+        <div>
+          <span className="text-xs font-semibold text-text-muted uppercase block">Overdue</span>
+          <span className={cn('mono text-xl font-bold', overdueTasks > 0 ? 'text-status-critical' : 'text-foreground')}>
+            {overdueTasks}
+          </span>
+        </div>
+      </div>
+
+      {/* Main Content Area */}
+      <div>
         {isLoading && tasks.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-64">
-            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mb-3" />
-            <p className="text-sm font-semibold text-muted-foreground">Loading your schedule...</p>
+          <div className="py-16 space-y-4">
+            <div className="h-48 rounded-lg bg-surface-2 animate-pulse" />
           </div>
         ) : activeView === 'LIST' ? (
           <TaskList onEditTask={handleOpenEditModal} />
@@ -153,7 +143,6 @@ const Tasks = () => {
         )}
       </div>
 
-      {/* Add/Edit Modal */}
       <TaskModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

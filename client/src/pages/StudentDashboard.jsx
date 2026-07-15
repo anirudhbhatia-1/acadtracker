@@ -1,174 +1,226 @@
 import React, { useEffect } from 'react';
 import useAuthStore from '@/store/authStore';
 import { useAcademicStore } from '@/store/academicStore';
+import { useTaskStore } from '@/store/taskStore';
 import Button from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardLabel, CardHero, CardSupporting } from '@/components/ui/card';
 import SGPALineChart from '@/components/SGPALineChart';
-import { GraduationCap, LogOut, CalendarCheck, Award, CheckSquare, Clock, ArrowRight } from 'lucide-react';
+import AttendanceLedgerStrip from '@/components/common/AttendanceLedgerStrip';
+import { AsyncState } from '@/components/common/AsyncState';
+import { Skeleton } from '@/components/ui/skeleton';
+import { ArrowRight, TrendingUp, CheckSquare, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const StudentDashboard = () => {
-  const { user, logout } = useAuthStore();
+  const { user } = useAuthStore();
   const { subjects, attendance, semesterSGPAs, cgpa, fetchAcademicData, isLoading } = useAcademicStore();
+  const { tasks, fetchTasks } = useTaskStore();
 
   useEffect(() => {
     if (user?.courseId) {
       fetchAcademicData(user.courseId);
     }
-  }, [user?.courseId, fetchAcademicData]);
+    fetchTasks();
+  }, [user?.courseId, fetchAcademicData, fetchTasks]);
 
-  // Calculate overall attendance health (% of enrolled subjects above 75%)
-  const totalSubjectsWithAttendance = attendance.length;
-  const safeAttendanceCount = attendance.filter((a) => (a.summary?.percentage || 0) >= 75).length;
-  const attendanceHealthPct =
-    totalSubjectsWithAttendance > 0
-      ? Number(((safeAttendanceCount / totalSubjectsWithAttendance) * 100).toFixed(1))
-      : 100.0;
+  // Filter tasks: upcoming (not done, sorted soonest-due first, capped at 3)
+  const upcomingTasks = [...(tasks || [])]
+    .filter((t) => t.status !== 'DONE' && t.dueDate)
+    .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
+    .slice(0, 3);
 
-  // Placeholder metrics for pending tasks & upcoming deadlines (Phase 3/4)
-  const pendingTasksCount = 0;
-  const nextDeadlineText = 'No immediate deadlines due';
+  // Sort subjects by attendance percentage (at-risk subjects < 75% first)
+  const sortedSubjectsByRisk = [...subjects].sort((a, b) => {
+    const recA = attendance.find((att) => att.subjectId === a.id);
+    const recB = attendance.find((att) => att.subjectId === b.id);
+    const pctA = recA?.summary?.percentage ?? 100;
+    const pctB = recB?.summary?.percentage ?? 100;
+    return pctA - pctB;
+  });
+
+  const topAtRiskSubjects = sortedSubjectsByRisk.slice(0, 4);
+
+  // Overall attendance health (% of subjects >= 75%)
+  const safeCount = subjects.filter((s) => {
+    const rec = attendance.find((att) => att.subjectId === s.id);
+    const pct = rec?.summary?.percentage ?? 100;
+    return pct >= 75;
+  }).length;
+  const attendanceHealthPct = subjects.length > 0 ? Math.round((safeCount / subjects.length) * 100) : 100;
+
+  const dashboardSkeleton = (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <Card key={i} className="space-y-3">
+            <Skeleton className="h-4 w-28" />
+            <Skeleton className="h-16 w-32" />
+            <Skeleton className="h-4 w-48" />
+          </Card>
+        ))}
+      </div>
+      <Card className="p-5">
+        <Skeleton className="h-48 w-full" />
+      </Card>
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950/40 to-slate-950 p-6 text-foreground">
-      <div className="mx-auto max-w-6xl space-y-6">
-        {/* Top Header */}
-        <header className="flex items-center justify-between border-b border-border/60 pb-4">
-          <div className="flex items-center space-x-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary border border-primary/20">
-              <GraduationCap className="h-5 w-5" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold tracking-tight">Student Academic Dashboard</h1>
-              <p className="text-xs text-muted-foreground">
-                Welcome back, {user?.name || 'Student'} ({user?.course?.name || 'Enrolled Course'} • Sem {user?.currentSemester || 1})
-              </p>
-            </div>
-          </div>
-          <Button variant="outline" size="sm" onClick={logout} className="space-x-2">
-            <LogOut className="h-4 w-4" />
-            <span>Sign Out</span>
-          </Button>
-        </header>
-
-        {/* 4 Summary Cards as per Section 2.5 */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="border-border/60 bg-card/80 backdrop-blur-md hover:border-primary/40 transition-colors">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Current CGPA</CardTitle>
-              <Award className="h-4 w-4 text-primary" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-black text-foreground">
-                {cgpa !== undefined ? Number(cgpa).toFixed(2) : '0.00'}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">10-point scale across semesters</p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-border/60 bg-card/80 backdrop-blur-md hover:border-emerald-500/40 transition-colors">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Attendance Health</CardTitle>
-              <CalendarCheck className="h-4 w-4 text-emerald-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-black text-foreground">{attendanceHealthPct}%</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {safeAttendanceCount}/{totalSubjectsWithAttendance || subjects.length} subjects meeting $\ge$75% limit
-              </p>
-            </CardContent>
-          </Card>
-
-          <Link to="/student/tasks" className="block">
-            <Card className="border-border/60 bg-card/80 backdrop-blur-md hover:border-amber-500/40 transition-colors h-full">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Pending Tasks</CardTitle>
-                <CheckSquare className="h-4 w-4 text-amber-500" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-black text-foreground">{pendingTasksCount}</div>
-                <p className="text-xs text-muted-foreground mt-1">Academic assignments & todos</p>
-              </CardContent>
-            </Card>
-          </Link>
-
-          <Link to="/student/tasks" className="block">
-            <Card className="border-border/60 bg-card/80 backdrop-blur-md hover:border-purple-500/40 transition-colors h-full">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Next Deadline</CardTitle>
-                <Clock className="h-4 w-4 text-purple-500" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-sm font-bold text-foreground mt-1 truncate">{nextDeadlineText}</div>
-                <p className="text-xs text-muted-foreground mt-1">View all assignments & schedules</p>
-              </CardContent>
-            </Card>
-          </Link>
-        </div>
-
-        {/* Recharts SGPA Line Chart as per Section 2.5 */}
-        <SGPALineChart semesterSGPAs={semesterSGPAs} />
-
-        {/* Quick Navigation Action Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="p-6 bg-gradient-to-r from-emerald-600/10 to-teal-600/10 border-emerald-500/20 shadow-md flex flex-col justify-between">
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <CalendarCheck className="w-6 h-6 text-emerald-500" />
-                <h3 className="text-lg font-bold text-foreground">Attendance Tracker</h3>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Log daily classes, check exact classes required to hit 75%, and view safe absence buffers per subject.
-              </p>
-            </div>
-            <div className="mt-6">
-              <Link to="/student/attendance">
-                <Button className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-500/20">
-                  Manage Attendance <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              </Link>
-            </div>
-          </Card>
-
-          <Card className="p-6 bg-gradient-to-r from-indigo-600/10 to-purple-600/10 border-indigo-500/20 shadow-md flex flex-col justify-between">
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <Award className="w-6 h-6 text-indigo-500" />
-                <h3 className="text-lg font-bold text-foreground">Grades & SGPA Calculator</h3>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Enter or update subject letter grades across semesters, exclude audit courses, and track live SGPA/CGPA.
-              </p>
-            </div>
-            <div className="mt-6">
-              <Link to="/student/grades">
-                <Button className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/20">
-                  Enter Subject Grades <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              </Link>
-            </div>
-          </Card>
-
-          <Card className="p-6 bg-gradient-to-r from-amber-600/10 to-orange-600/10 border-amber-500/20 shadow-md flex flex-col justify-between">
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <CheckSquare className="w-6 h-6 text-amber-500" />
-                <h3 className="text-lg font-bold text-foreground">Task & Schedule Board</h3>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Organize assignments, projects, and exams across List, Calendar, and interactive Kanban views.
-              </p>
-            </div>
-            <div className="mt-6">
-              <Link to="/student/tasks">
-                <Button className="w-full sm:w-auto bg-amber-600 hover:bg-amber-700 text-white shadow-md shadow-amber-500/20">
-                  Open Task Scheduler <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              </Link>
-            </div>
-          </Card>
-        </div>
+    <div className="space-y-6 animate-in fade-in-50 duration-200">
+      {/* Page Title & Context Header */}
+      <div>
+        <h1 className="font-display text-2xl font-semibold text-foreground tracking-tight">
+          Welcome back, {user?.name?.split(' ')[0] || 'Student'} 👋
+        </h1>
+        <p className="text-sm text-text-muted mt-1">
+          Here is where things stand this semester.
+        </p>
       </div>
+
+      <AsyncState
+        isLoading={isLoading}
+        onRetry={() => user?.courseId && fetchAcademicData(user.courseId)}
+        skeleton={dashboardSkeleton}
+      >
+        {/* 3-Column Bento Grid (§7.3 & student-platform-mockup.html) */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Card 1: CGPA Hero */}
+          <Card className="flex flex-col justify-between">
+            <div>
+              <CardLabel>Current CGPA</CardLabel>
+              <CardHero>{cgpa !== undefined && (cgpa > 0 || semesterSGPAs?.length > 0) ? Number(cgpa).toFixed(2) : 'Not available'}</CardHero>
+              <CardSupporting>
+                <TrendingUp className="w-3.5 h-3.5 text-status-safe inline" />
+                <span>10-point scale across semesters</span>
+              </CardSupporting>
+            </div>
+            <div className="pt-4 mt-4 border-t border-border flex items-center justify-between text-xs text-text-muted">
+              <span>Attendance Health</span>
+              <span className="mono font-semibold text-foreground">{attendanceHealthPct}%</span>
+            </div>
+          </Card>
+
+          {/* Card 2: Attendance — At Risk First (§4 & §7.3) */}
+          <Card className="flex flex-col justify-between">
+            <div>
+              <CardLabel>Attendance — at risk first</CardLabel>
+              <div className="divide-y divide-border">
+                {topAtRiskSubjects.length > 0 ? (
+                  topAtRiskSubjects.map((subj) => {
+                    const rec = attendance.find((att) => att.subjectId === subj.id);
+                    return (
+                      <AttendanceLedgerStrip
+                        key={subj.id}
+                        subjectName={subj.name}
+                        attendedClasses={rec?.attendedClasses || 0}
+                        totalClasses={rec?.totalClasses || 0}
+                        percentage={rec?.summary?.percentage || 0}
+                        status={rec?.summary?.status || 'SAFE'}
+                        condensed={true}
+                      />
+                    );
+                  })
+                ) : (
+                  <p className="py-4 text-xs text-text-muted text-center">No subjects enrolled yet.</p>
+                )}
+              </div>
+            </div>
+            <div className="pt-4 mt-4 border-t border-border flex items-center justify-between">
+              <span className="text-xs text-text-muted">{subjects.length} subjects tracked</span>
+              <Link to="/student/attendance" className="text-xs font-semibold text-ink dark:text-chalk-teal hover:underline flex items-center gap-1">
+                <span>View All</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </Card>
+
+          {/* Card 3: Tasks Due Soon */}
+          <Card className="flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <CardLabel>Tasks due soon</CardLabel>
+                {upcomingTasks.length > 0 && (
+                  <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-surface-2 text-text-muted">
+                    {upcomingTasks.length} due
+                  </span>
+                )}
+              </div>
+              {upcomingTasks.length === 0 ? (
+                <div className="py-4 text-center space-y-2">
+                  <div className="w-10 h-10 rounded-full bg-surface-2 flex items-center justify-center mx-auto text-text-muted">
+                    <CheckSquare className="w-5 h-5" />
+                  </div>
+                  <p className="text-xs font-medium text-foreground">Nothing scheduled right now</p>
+                  <p className="text-[11px] text-text-soft">
+                    Add your next assignment or study goal from the scheduler right when you are ready.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-2.5 py-1">
+                  {upcomingTasks.map((task) => {
+                    const dueDate = new Date(task.dueDate);
+                    const now = new Date();
+                    const isOverdue = dueDate < now || task.isOverdue;
+                    const isToday = dueDate.toDateString() === now.toDateString();
+                    const isTomorrow = dueDate.toDateString() === new Date(now.getTime() + 86400000).toDateString();
+                    
+                    let timeLabel = dueDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+                    if (isToday) timeLabel = 'Today';
+                    if (isTomorrow) timeLabel = 'Tomorrow';
+                    if (isOverdue) timeLabel = 'Overdue';
+
+                    return (
+                      <div
+                        key={task.id}
+                        className="flex items-center justify-between p-2.5 rounded-lg bg-surface-2/60 hover:bg-surface-2 transition-colors border border-border/50 gap-3"
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                          <div
+                            className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                              isOverdue
+                                ? 'bg-status-critical'
+                                : task.priority === 'HIGH'
+                                ? 'bg-status-warning'
+                                : 'bg-chalk-teal'
+                            }`}
+                          />
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs font-medium text-foreground truncate leading-snug">
+                              {task.title}
+                            </p>
+                            {task.category && task.category !== 'OTHER' && (
+                              <span className="text-[10px] text-text-muted block mt-0.5">
+                                {task.category}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1 text-[11px] font-mono font-medium flex-shrink-0 px-2 py-0.5 rounded bg-surface border border-border/60">
+                          <Clock className={`w-3 h-3 ${isOverdue ? 'text-status-critical' : 'text-text-muted'}`} />
+                          <span className={isOverdue ? 'text-status-critical' : 'text-text-muted'}>
+                            {timeLabel}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+            <div className="pt-4 mt-4 border-t border-border">
+              <Link to="/student/tasks" className="block">
+                <Button variant="outline" size="sm" className="w-full justify-between">
+                  <span>{upcomingTasks.length > 0 ? 'View All Tasks' : 'Open Scheduler'}</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Button>
+              </Link>
+            </div>
+          </Card>
+        </div>
+
+        {/* SGPA History Chart (§6.8 & §7.3) */}
+        <SGPALineChart semesterSGPAs={semesterSGPAs} />
+      </AsyncState>
     </div>
   );
 };

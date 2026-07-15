@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useTaskStore } from '@/store/taskStore';
 import { Flag, Calendar, BookOpen, AlertCircle, Plus } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
 const COLUMNS = [
-  { id: 'TODO', title: 'To Do', border: 'border-slate-500/30', bgHeader: 'bg-slate-500/10 text-slate-300' },
-  { id: 'IN_PROGRESS', title: 'In Progress', border: 'border-blue-500/30', bgHeader: 'bg-blue-500/10 text-blue-300' },
-  { id: 'DONE', title: 'Completed', border: 'border-emerald-500/30', bgHeader: 'bg-emerald-500/10 text-emerald-300' },
+  { id: 'TODO', title: 'To Do' },
+  { id: 'IN_PROGRESS', title: 'In Progress' },
+  { id: 'DONE', title: 'Completed' },
 ];
 
 const KanbanBoard = ({ onEditTask, onAddTaskInColumn }) => {
@@ -43,19 +44,19 @@ const KanbanBoard = ({ onEditTask, onAddTaskInColumn }) => {
     setDraggedTaskId(null);
   };
 
-  const getPriorityIndicator = (priority) => {
+  const getPriorityBadge = (priority) => {
     switch (priority) {
       case 'HIGH':
-        return <span className="w-2.5 h-2.5 rounded-full bg-rose-500 flex-shrink-0 shadow-[0_0_8px_rgba(244,63,94,0.6)]" title="High Priority" />;
+        return <Badge variant="critical" icon={Flag} className="text-[10px] px-1.5 py-0.5">High</Badge>;
       case 'MEDIUM':
-        return <span className="w-2.5 h-2.5 rounded-full bg-amber-500 flex-shrink-0" title="Medium Priority" />;
+        return <Badge variant="warning" icon={Flag} className="text-[10px] px-1.5 py-0.5">Med</Badge>;
       default:
-        return <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 flex-shrink-0" title="Low Priority" />;
+        return <Badge variant="safe" icon={Flag} className="text-[10px] px-1.5 py-0.5">Low</Badge>;
     }
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start pb-6">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start pb-6">
       {COLUMNS.map((col) => {
         const columnTasks = tasks
           .filter((t) => t.status === col.id)
@@ -70,33 +71,32 @@ const KanbanBoard = ({ onEditTask, onAddTaskInColumn }) => {
             onDragLeave={handleDragLeave}
             onDrop={(e) => handleDrop(e, col.id)}
             className={cn(
-              'flex flex-col rounded-2xl bg-card/60 border transition-all duration-200 min-h-[500px]',
-              isDropTarget ? 'border-primary ring-2 ring-primary/20 bg-card/90 scale-[1.01]' : col.border
+              'flex flex-col rounded-lg bg-surface-2 border border-border p-3 transition-all duration-150 min-h-[460px]',
+              isDropTarget && 'ring-2 ring-ink dark:ring-chalk-teal bg-surface-2/80'
             )}
           >
-            {/* Column Header */}
-            <div className={cn('flex items-center justify-between px-4 py-3 rounded-t-2xl border-b border-border font-bold text-sm', col.bgHeader)}>
-              <div className="flex items-center gap-2">
+            {/* Column Header (.kcol h4 per student-platform-mockup.html lines 154) */}
+            <div className="flex items-center justify-between pb-3 mb-2 border-b border-border text-xs uppercase tracking-[0.04em] font-semibold text-text-muted">
+              <div className="flex items-center gap-1.5">
                 <span>{col.title}</span>
-                <span className="inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-background/80 text-foreground text-xs font-extrabold">
+                <span className="mono bg-surface px-1.5 py-0.5 rounded text-[11px] font-bold text-foreground border border-border">
                   {columnTasks.length}
                 </span>
               </div>
               <button
                 onClick={() => onAddTaskInColumn(col.id)}
-                className="p-1 rounded-lg hover:bg-background/40 transition-colors cursor-pointer text-current"
+                className="p-1 rounded hover:bg-surface transition-colors text-foreground"
                 title={`Add task in ${col.title}`}
               >
                 <Plus className="w-4 h-4" />
               </button>
             </div>
 
-            {/* Column Cards Container */}
-            <div className="p-3 space-y-3 flex-1 overflow-y-auto max-h-[70vh]">
+            {/* Column Cards Container (.kcard per student-platform-mockup.html lines 155-160) */}
+            <div className="space-y-2 flex-1 overflow-y-auto max-h-[70vh]">
               {columnTasks.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-36 text-center text-xs text-muted-foreground border border-dashed border-border/40 rounded-xl">
+                <div className="flex flex-col items-center justify-center h-32 text-center text-xs text-text-muted border border-dashed border-border rounded-md">
                   <span>No tasks inside "{col.title}"</span>
-                  <span>Drag cards here or click '+'</span>
                 </div>
               ) : (
                 columnTasks.map((task) => {
@@ -110,42 +110,36 @@ const KanbanBoard = ({ onEditTask, onAddTaskInColumn }) => {
                       onDragStart={(e) => handleDragStart(e, task.id)}
                       onClick={() => onEditTask(task)}
                       className={cn(
-                        'group p-3.5 rounded-xl border transition-all cursor-grab active:cursor-grabbing shadow-sm hover:shadow-md bg-card',
-                        isCompleted
-                          ? 'border-border/40 opacity-70 bg-muted/20'
-                          : isOverdue
-                            ? 'border-rose-500/60 bg-rose-500/5'
-                            : 'border-border hover:border-primary/60'
+                        'group p-3 rounded-lg border border-border bg-surface shadow-sm transition-all cursor-grab active:cursor-grabbing hover:shadow-md',
+                        isCompleted && 'opacity-60 bg-surface-2'
                       )}
                     >
-                      {/* Top Bar: Category + Priority color dot */}
+                      {/* Top Bar: Category + Priority badge per §6.2 */}
                       <div className="flex items-center justify-between gap-2 mb-2">
-                        <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-muted text-muted-foreground">
+                        <span className="bg-info-tint text-status-info text-[10.5px] font-semibold px-2 py-0.5 rounded">
                           {task.category}
                         </span>
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-1">
                           {isOverdue && (
-                            <span className="text-[10px] font-extrabold text-rose-500 flex items-center gap-0.5 animate-pulse">
-                              <AlertCircle className="w-3 h-3" /> OVERDUE
-                            </span>
+                            <Badge variant="overdue" icon={AlertCircle} className="text-[10px] px-1.5 py-0.5">Overdue</Badge>
                           )}
-                          {getPriorityIndicator(task.priority)}
+                          {getPriorityBadge(task.priority)}
                         </div>
                       </div>
 
-                      {/* Card Title */}
+                      {/* Card Title (.kcard-title) */}
                       <h4
                         className={cn(
-                          'text-sm font-bold line-clamp-2 mb-1.5',
-                          isCompleted ? 'line-through text-muted-foreground' : 'text-foreground'
+                          'text-[13px] font-semibold text-foreground line-clamp-2 mb-2 leading-snug',
+                          isCompleted && 'line-through text-text-muted'
                         )}
                       >
                         {task.title}
                       </h4>
 
-                      {/* Card Due Date & Subject */}
-                      <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t border-border/40 mt-2.5">
-                        <span className={cn('flex items-center gap-1 font-medium', isOverdue ? 'text-rose-400 font-bold' : '')}>
+                      {/* Card Foot (.kcard-foot) */}
+                      <div className="flex items-center justify-between text-[11px] text-text-muted pt-2 border-t border-border mt-2">
+                        <span className={cn('flex items-center gap-1 font-medium', isOverdue ? 'text-status-critical font-semibold' : '')}>
                           <Calendar className="w-3 h-3" />
                           {new Date(task.dueDate).toLocaleDateString('en-US', {
                             month: 'short',
@@ -154,11 +148,11 @@ const KanbanBoard = ({ onEditTask, onAddTaskInColumn }) => {
                         </span>
 
                         {task.subject ? (
-                          <span className="flex items-center gap-1 text-indigo-400 font-semibold bg-indigo-500/10 px-1.5 py-0.5 rounded text-[11px]">
+                          <span className="flex items-center gap-1 text-ink dark:text-chalk-teal font-semibold">
                             <BookOpen className="w-3 h-3" /> {task.subject.code}
                           </span>
                         ) : (
-                          <span className="text-[11px] text-muted-foreground/60 font-medium">General</span>
+                          <span>General</span>
                         )}
                       </div>
                     </div>

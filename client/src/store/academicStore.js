@@ -1,8 +1,10 @@
+import React from 'react';
 import { create } from 'zustand';
 import toast from 'react-hot-toast';
 import gradeService from '../services/gradeService';
 import attendanceService from '../services/attendanceService';
 import subjectService from '../services/subjectService';
+import { getAttendanceSummary } from '../utils/attendanceUtils';
 
 export const useAcademicStore = create((set, get) => ({
   subjects: [],
@@ -12,6 +14,7 @@ export const useAcademicStore = create((set, get) => ({
   cgpa: 0,
   isLoading: false,
   error: null,
+  _activeUpdates: new Set(),
 
   /**
    * Fetch all academic data (subjects, grades, and attendance) for the student
@@ -48,13 +51,18 @@ export const useAcademicStore = create((set, get) => ({
   },
 
   /**
-   * Log attendance for a subject and show instant toast alert if below 75%
+   * Log attendance for a subject and show instant toast alert with Undo affordance
    */
   logAttendance: async (subjectId, semesterNo, action = 'ATTENDED', totalIncrement = 1, attendedIncrement = 1) => {
+    const currentAtt = get().attendance;
+    const oldRecord = currentAtt.find((a) => a.subjectId === subjectId && Number(a.semesterNo) === Number(semesterNo));
+    const oldTotal = oldRecord?.totalClasses !== undefined ? oldRecord.totalClasses : 0;
+    const oldAttended = oldRecord?.attendedClasses !== undefined ? oldRecord.attendedClasses : 0;
+
     try {
       const res = await attendanceService.logAttendance({
         subjectId,
-        semesterNo,
+        semesterNo: Number(semesterNo),
         action,
         totalIncrement,
         attendedIncrement,
@@ -62,33 +70,159 @@ export const useAcademicStore = create((set, get) => ({
 
       const updatedRecord = res.data?.attendance;
       if (updatedRecord) {
-        // Update local attendance array
-        const currentAtt = get().attendance;
-        const index = currentAtt.findIndex((a) => a.subjectId === subjectId && a.semesterNo === semesterNo);
+        // Update local attendance array instantly (zero page reload required)
+        const currentAttAfter = get().attendance;
+        const index = currentAttAfter.findIndex((a) => a.subjectId === subjectId && Number(a.semesterNo) === Number(semesterNo));
         let nextAtt;
         if (index > -1) {
-          nextAtt = [...currentAtt];
+          nextAtt = [...currentAttAfter];
           nextAtt[index] = updatedRecord;
         } else {
-          nextAtt = [...currentAtt, updatedRecord];
+          nextAtt = [...currentAttAfter, updatedRecord];
         }
         set({ attendance: nextAtt });
 
-        // Trigger in-app toast alert if attendance < 75% as per Section 2.6
         const newPct = updatedRecord.summary?.percentage || 0;
         const subjectName = updatedRecord.subject?.name || 'Subject';
-        if (newPct < 75) {
-          toast.error(
-            `Warning: Attendance for ${subjectName} is at ${newPct}%, below the 75% threshold!`,
-            { duration: 5000, icon: '⚠️' }
-          );
-        } else {
-          toast.success(`Logged ${action.toLowerCase()} for ${subjectName}. Now at ${newPct}%!`);
-        }
+
+        toast.dismiss(`log-${subjectId}`);
+        toast((t) => React.createElement(
+          'div',
+          { className: 'flex items-center justify-between gap-3 bg-surface border border-border px-3.5 py-2.5 rounded-md shadow-lg text-xs text-foreground min-w-[280px]' },
+          React.createElement(
+            'div',
+            { className: 'flex flex-col' },
+            React.createElement(
+              'span',
+              { className: 'font-semibold' },
+              `Logged +${action === 'ATTENDED' ? attendedIncrement : 0} ${action.toLowerCase()} (${totalIncrement} session${totalIncrement > 1 ? 's' : ''})`
+            ),
+            React.createElement(
+              'span',
+              { className: 'text-text-soft' },
+              `${subjectName}: Now at `,
+              React.createElement(
+                'strong',
+                { className: newPct < 75 ? 'text-status-critical font-bold' : 'font-semibold' },
+                `${newPct}%`
+              ),
+              ` (${updatedRecord.attendedClasses}/${updatedRecord.totalClasses})`
+            )
+          ),
+          React.createElement(
+            'button',
+            {
+              onClick: async () => {
+                toast.dismiss(t.id);
+                try {
+                  const reverted = await attendanceService.updateAttendance(updatedRecord.id, {
+                    totalClasses: oldTotal,
+                    attendedClasses: oldAttended,
+                  });
+                  if (reverted.data?.attendance) {
+                    const latestAtt = get().attendance;
+                    const idx = latestAtt.findIndex((a) => a.id === updatedRecord.id);
+                    if (idx > -1) {
+                      const revertedList = [...latestAtt];
+                      revertedList[idx] = reverted.data.attendance;
+                      set({ attendance: revertedList });
+                    }
+                    toast.success(`Reverted attendance log for ${subjectName}`);
+                  }
+                } catch (err) {
+                  toast.error('Failed to undo attendance log');
+                }
+              },
+              className: 'px-2.5 py-1 bg-surface-2 hover:bg-surface-3 border border-border rounded font-semibold text-ink dark:text-chalk-teal transition-colors cursor-pointer shrink-0'
+            },
+            'Undo'
+          )
+        ), { duration: 6000, id: `log-${subjectId}` });
       }
       return updatedRecord;
     } catch (error) {
       const errMsg = error.response?.data?.message || 'Failed to log attendance';
+      toast.error(errMsg);
+      throw error;
+    }
+  },
+
+  /**
+   * Correct attendance counts (totalClasses, attendedClasses) for an existing record.
+   * Includes optimistic update, race protection, and rollback on failure.
+   */
+  correctAttendance: async (id, totalClasses, attendedClasses) => {
+    const activeUpdates = get()._activeUpdates || new Set();
+    if (activeUpdates.has(id)) {
+      return null;
+    }
+    activeUpdates.add(id);
+    set({ _activeUpdates: activeUpdates });
+
+    const currentAtt = get().attendance;
+    const oldIndex = currentAtt.findIndex((a) => a.id === id);
+    if (oldIndex === -1) {
+      activeUpdates.delete(id);
+      set({ _activeUpdates: activeUpdates });
+      return null;
+    }
+
+    const oldRecord = currentAtt[oldIndex];
+    const newTotal = Number(totalClasses);
+    const newAttended = Number(attendedClasses);
+    const newSummary = getAttendanceSummary({ totalClasses: newTotal, attendedClasses: newAttended });
+
+    const optimisticRecord = {
+      ...oldRecord,
+      totalClasses: newTotal,
+      attendedClasses: newAttended,
+      summary: newSummary,
+    };
+
+    // Optimistically update attendance array
+    const optimisticList = [...currentAtt];
+    optimisticList[oldIndex] = optimisticRecord;
+    set({ attendance: optimisticList });
+
+    try {
+      const res = await attendanceService.updateAttendance(id, {
+        totalClasses: newTotal,
+        attendedClasses: newAttended,
+      });
+
+      activeUpdates.delete(id);
+      set({ _activeUpdates: activeUpdates });
+
+      const serverRecord = res.data?.attendance;
+      if (serverRecord) {
+        const latestAtt = get().attendance;
+        const latestIndex = latestAtt.findIndex((a) => a.id === id);
+        if (latestIndex > -1) {
+          const finalList = [...latestAtt];
+          finalList[latestIndex] = {
+            ...serverRecord,
+            summary: serverRecord.summary || getAttendanceSummary(serverRecord),
+          };
+          set({ attendance: finalList });
+        }
+        const subjectName = serverRecord.subject?.name || oldRecord.subject?.name || 'Subject';
+        toast.success(`Corrected attendance for ${subjectName}`);
+        return serverRecord;
+      }
+      return optimisticRecord;
+    } catch (error) {
+      activeUpdates.delete(id);
+      set({ _activeUpdates: activeUpdates });
+
+      const currentAttAfterError = get().attendance;
+      const idx = currentAttAfterError.findIndex((a) => a.id === id);
+      if (idx > -1) {
+        const revertedList = [...currentAttAfterError];
+        revertedList[idx] = oldRecord;
+        set({ attendance: revertedList });
+      }
+
+      const errMsg = error.response?.data?.message || 'Failed to update attendance';
       toast.error(errMsg);
       throw error;
     }

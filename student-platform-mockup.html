@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Academic Platform — Interface Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{
+    --ink:#2B3A67; --chalk:#2E8B8B; --paper:#F3F4F7; --deep-ink:#14161F;
+    --safe:#2F9E64; --warning:#E8A33D; --critical:#D64545; --info:#3E6FD9;
+    --bg:var(--paper); --surface:#FFFFFF; --surface-2:#FAFAFB;
+    --border:#E2E5EA; --text:#1E2433; --text-muted:#64748B; --text-soft:#8A93A3;
+    --accent:var(--ink); --shadow:0 1px 2px rgba(30,36,51,.06);
+    --safe-tint:#EAF7EF; --warn-tint:#FDF3E4; --crit-tint:#FBEAEA; --info-tint:#EAEFFC;
+  }
+  html.dark{
+    --bg:var(--deep-ink); --surface:#1B1E29; --surface-2:#20232F;
+    --border:#2B2F3B; --text:#F1F2F4; --text-muted:#9CA3AF; --text-soft:#6B7280;
+    --accent:var(--chalk); --shadow:0 1px 2px rgba(0,0,0,.4);
+    --safe-tint:rgba(47,158,100,.15); --warn-tint:rgba(232,163,61,.15);
+    --crit-tint:rgba(214,69,69,.15); --info-tint:rgba(62,111,217,.15);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);
+    -webkit-font-smoothing:antialiased;transition:background .2s,color .2s;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  .display{font-family:'Fraunces',serif;}
+
+  /* ---- App shell ---- */
+  .app{display:flex;min-height:100vh;}
+  .sidebar{width:220px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);
+    display:flex;flex-direction:column;padding:20px 12px;transition:background .2s,border-color .2s;}
+  .brand{display:flex;align-items:center;gap:10px;padding:6px 10px 22px;}
+  .brand-mark{width:30px;height:30px;border-radius:8px;background:var(--ink);display:flex;align-items:center;
+    justify-content:center;color:#fff;font-family:'Fraunces',serif;font-weight:600;font-size:15px;flex-shrink:0;}
+  .brand-name{font-size:14px;font-weight:600;line-height:1.2;}
+  .brand-sub{font-size:11px;color:var(--text-muted);}
+  nav.nav{display:flex;flex-direction:column;gap:2px;}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;color:var(--text-muted);
+    font-size:13.5px;font-weight:500;cursor:pointer;border:none;background:none;width:100%;text-align:left;
+    transition:background .15s,color .15s;}
+  .nav-item svg{flex-shrink:0;}
+  .nav-item:hover{background:var(--surface-2);color:var(--text);}
+  .nav-item.active{background:var(--ink);color:#fff;}
+  html.dark .nav-item.active{background:var(--chalk);}
+  .nav-spacer{margin-top:auto;}
+  .nav-foot{padding:10px;border-top:1px solid var(--border);font-size:11px;color:var(--text-soft);margin-top:8px;}
+
+  .main{flex:1;min-width:0;display:flex;flex-direction:column;}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;
+    border-bottom:1px solid var(--border);background:var(--surface);}
+  .crumb{font-size:13px;color:var(--text-muted);}
+  .crumb b{color:var(--text);font-weight:600;}
+  .top-actions{display:flex;align-items:center;gap:14px;}
+  .icon-btn{width:34px;height:34px;border-radius:8px;border:1px solid var(--border);background:var(--surface);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-muted);}
+  .icon-btn:hover{background:var(--surface-2);color:var(--text);}
+  .avatar{width:32px;height:32px;border-radius:50%;background:var(--chalk);color:#fff;display:flex;
+    align-items:center;justify-content:center;font-size:12px;font-weight:600;font-family:'Fraunces',serif;}
+  .content{padding:28px;max-width:1200px;width:100%;margin:0 auto;flex:1;}
+  .panel{display:none;}
+  .panel.active{display:block;animation:fade .18s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+
+  h1.page-title{font-family:'Fraunces',serif;font-size:24px;font-weight:600;margin:0 0 4px;}
+  .page-sub{color:var(--text-muted);font-size:13.5px;margin:0 0 22px;}
+
+  /* ---- Cards ---- */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;box-shadow:var(--shadow);}
+  .card-label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);font-weight:600;margin-bottom:10px;}
+  .grid-3{display:grid;grid-template-columns:1.1fr 1.3fr 1fr;gap:16px;margin-bottom:16px;}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media(max-width:900px){.grid-3{grid-template-columns:1fr;} .grid-2{grid-template-columns:1fr;}}
+
+  .hero-number{font-size:40px;font-weight:600;line-height:1;margin:2px 0 6px;}
+  .trend-up{color:var(--safe);font-size:12.5px;font-weight:600;}
+  .trend-up svg{vertical-align:-2px;}
+
+  /* ---- Badges ---- */
+  .badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;font-size:11.5px;font-weight:600;}
+  .badge-safe{background:var(--safe-tint);color:var(--safe);}
+  .badge-warning{background:var(--warn-tint);color:var(--warning);}
+  .badge-critical{background:var(--crit-tint);color:var(--critical);}
+  .badge-info{background:var(--info-tint);color:var(--info);}
+  .badge svg{width:12px;height:12px;}
+
+  /* ---- Buttons ---- */
+  .btn{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;padding:8px 16px;border-radius:6px;
+    border:1px solid transparent;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:.15s;}
+  .btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  .btn-primary{background:var(--ink);color:#fff;}
+  html.dark .btn-primary{background:var(--chalk);}
+  .btn-primary:hover{opacity:.9;}
+  .btn-outline{background:transparent;border-color:var(--border);color:var(--text);}
+  .btn-outline:hover{background:var(--surface-2);}
+  .btn-accent{background:var(--chalk);color:#fff;}
+  .btn-accent:hover{opacity:.9;}
+  .btn-ghost{background:none;border:none;color:var(--text-muted);padding:6px 10px;}
+  .btn-ghost:hover{color:var(--text);}
+  .btn-sm{font-size:12px;padding:5px 11px;}
+
+  /* ---- Ledger strip (signature element) ---- */
+  .ledger-row{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px;}
+  .ledger-row:last-child{margin-bottom:0;}
+  .ledger-meta{min-width:190px;}
+  .ledger-name{font-size:13.5px;font-weight:600;}
+  .ledger-pct{font-size:12px;margin-top:2px;}
+  .ledger-strip{display:flex;flex-wrap:wrap;gap:3px;flex:1;}
+  .lsq{width:12px;height:12px;border-radius:3px;flex-shrink:0;}
+  .lsq.present{background:var(--safe);}
+  .lsq.absent{background:transparent;border:1.5px solid var(--critical);}
+  .lsq.upcoming{background:transparent;border:1.5px dashed var(--border);}
+  .ledger-actions{display:flex;gap:6px;flex-shrink:0;}
+  .legend{display:flex;gap:16px;font-size:11.5px;color:var(--text-muted);margin-top:18px;}
+  .legend span{display:inline-flex;align-items:center;gap:5px;}
+  .legend .lsq{width:10px;height:10px;}
+
+  /* ---- Tables ---- */
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);
+    font-weight:600;padding:8px 10px;border-bottom:1px solid var(--border);}
+  td{padding:9px 10px;border-bottom:1px solid var(--border);}
+  tr:last-child td{border-bottom:none;}
+  select.grade-select{font-family:'IBM Plex Mono',monospace;font-size:12.5px;padding:5px 8px;border-radius:6px;
+    border:1px solid var(--border);background:var(--surface);color:var(--text);}
+  .num{font-family:'IBM Plex Mono',monospace;}
+
+  /* ---- Tabs / segmented ---- */
+  .seg{display:inline-flex;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:3px;}
+  .seg button{border:none;background:none;font-family:'Inter',sans-serif;font-size:12.5px;font-weight:600;
+    padding:7px 14px;border-radius:6px;color:var(--text-muted);cursor:pointer;}
+  .seg button.active{background:var(--surface);color:var(--text);box-shadow:var(--shadow);}
+  html.dark .seg button.active{background:var(--ink);color:#fff;}
+
+  .semtabs{display:flex;gap:6px;margin-bottom:18px;}
+  .semtabs button{border:1px solid var(--border);background:var(--surface);color:var(--text-muted);
+    font-size:12.5px;font-weight:600;padding:7px 14px;border-radius:999px;cursor:pointer;}
+  .semtabs button.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+  html.dark .semtabs button.active{background:var(--chalk);border-color:var(--chalk);}
+
+  /* ---- Task components ---- */
+  .task-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);}
+  .task-row:last-child{border-bottom:none;}
+  .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .dot-high{background:var(--critical);} .dot-medium{background:var(--warning);} .dot-low{background:var(--text-soft);}
+  .task-title{font-size:13.5px;font-weight:500;flex:1;}
+  .task-meta{font-size:11.5px;color:var(--text-muted);}
+  .kanban{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+  @media(max-width:800px){.kanban{grid-template-columns:1fr;}}
+  .kcol{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:12px;min-height:120px;}
+  .kcol h4{font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);margin:2px 0 12px;}
+  .kcard{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:8px;
+    box-shadow:var(--shadow);cursor:grab;}
+  .kcard:last-child{margin-bottom:0;}
+  .kcard-title{font-size:13px;font-weight:600;margin-bottom:6px;}
+  .kcard-foot{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--text-muted);}
+  .tag{background:var(--info-tint);color:var(--info);font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:5px;}
+
+  .cal{border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+  .cal-head{display:grid;grid-template-columns:repeat(7,1fr);background:var(--surface-2);}
+  .cal-head div{padding:8px;text-align:center;font-size:11px;font-weight:600;color:var(--text-muted);}
+  .cal-body{display:grid;grid-template-columns:repeat(7,1fr);}
+  .cal-cell{min-height:78px;border-top:1px solid var(--border);border-right:1px solid var(--border);padding:6px;position:relative;}
+  .cal-cell:nth-child(7n){border-right:none;}
+  .cal-date{font-size:11.5px;color:var(--text-soft);}
+  .cal-cell.today{background:var(--info-tint);}
+  .cal-cell.today .cal-date{color:var(--info);font-weight:700;}
+  .cal-chip{margin-top:4px;font-size:10px;padding:2px 5px;border-radius:4px;font-weight:600;color:#fff;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+  /* ---- Predictor ---- */
+  .pred-grid{display:grid;grid-template-columns:340px 1fr;gap:20px;}
+  @media(max-width:900px){.pred-grid{grid-template-columns:1fr;}}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:5px;}
+  .field input[type=number]{width:100%;padding:8px 10px;border-radius:6px;border:1px solid var(--border);
+    background:var(--surface);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:13px;}
+  .result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px;}
+  @media(max-width:700px){.result-grid{grid-template-columns:1fr;}}
+  .result-card{border:1px solid var(--border);border-radius:10px;padding:16px;background:var(--surface-2);}
+  .result-card .val{font-family:'Fraunces',serif;font-size:22px;font-weight:600;}
+  .hero-mono{font-family:'IBM Plex Mono',monospace;font-size:52px;font-weight:600;line-height:1;}
+
+  /* ---- Resources ---- */
+  .res-item{display:flex;align-items:flex-start;gap:10px;padding:12px 0;border-bottom:1px solid var(--border);}
+  .res-item:last-child{border-bottom:none;}
+  .pinned-section{border-left:3px solid var(--chalk);padding-left:14px;margin-bottom:20px;}
+
+  ::-webkit-scrollbar{width:8px;height:8px;}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">A</div>
+      <div>
+        <div class="brand-name">Acadia</div>
+        <div class="brand-sub">Student Platform</div>
+      </div>
+    </div>
+    <nav class="nav" id="nav">
+      <button class="nav-item active" data-panel="dashboard">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+        Dashboard
+      </button>
+      <button class="nav-item" data-panel="attendance">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/><path d="m8.5 13.5 2 2 4-4"/></svg>
+        Attendance
+      </button>
+      <button class="nav-item" data-panel="grades">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l3 3v15H6V3z"/><path d="M9 9h6M9 13h6M9 17h4"/></svg>
+        Grades
+      </button>
+      <button class="nav-item" data-panel="predictor">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17 9 11l4 4 8-8"/><path d="M15 7h6v6"/></svg>
+        Predictor
+      </button>
+      <button class="nav-item" data-panel="tasks">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m4 7 2 2 3-3M4 14l2 2 3-3M4 21l2 2 3-3"/><path d="M11 7h9M11 15h9M11 22h9" stroke-width="1.6"/></svg>
+        Tasks
+      </button>
+      <button class="nav-item" data-panel="resources">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4H6.5A2.5 2.5 0 0 0 4 6.5v13z"/><path d="M20 17v3H6.5A2.5 2.5 0 0 1 4 17.5"/></svg>
+        Resources
+      </button>
+      <div class="nav-spacer"></div>
+      <div class="nav-foot">Signed in as <b style="color:var(--text)">Arjun Mehta</b><br>B.Tech CSE · Sem 4</div>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <header class="topbar">
+      <div class="crumb">Acadia / <b id="crumbLabel">Dashboard</b></div>
+      <div class="top-actions">
+        <button class="icon-btn" title="Search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></button>
+        <button class="icon-btn" title="Notifications"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></button>
+        <button class="icon-btn" id="themeToggle" title="Toggle dark mode">
+          <svg id="sunIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        </button>
+        <div class="avatar">AM</div>
+      </div>
+    </header>
+
+    <main class="content">
+
+      <!-- ===================== DASHBOARD ===================== -->
+      <section class="panel active" id="panel-dashboard">
+        <h1 class="page-title">Good afternoon, Arjun</h1>
+        <p class="page-sub">Here's where things stand this semester.</p>
+
+        <div class="grid-3">
+          <div class="card">
+            <div class="card-label">Current CGPA</div>
+            <div class="hero-number display">8.42</div>
+            <div class="trend-up"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 6 13.5 15.5 8.5 10.5 1 18"/><path d="M17 6h6v6"/></svg> +0.15 from last semester</div>
+          </div>
+          <div class="card">
+            <div class="card-label">Attendance — at risk first</div>
+            <div id="dashLedger"></div>
+          </div>
+          <div class="card">
+            <div class="card-label">Tasks due soon</div>
+            <div id="dashTasks"></div>
+            <button class="btn btn-ghost btn-sm" style="padding-left:0;margin-top:4px" data-goto="tasks">View all tasks →</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">SGPA history — solid = completed, dashed = predicted</div>
+          <canvas id="dashChart" height="70"></canvas>
+        </div>
+      </section>
+
+      <!-- ===================== ATTENDANCE ===================== -->
+      <section class="panel" id="panel-attendance">
+        <h1 class="page-title">Attendance</h1>
+        <p class="page-sub">75% is the safe line across every subject — fixed by university policy.</p>
+        <div class="semtabs">
+          <button class="active">Semester 4</button>
+          <button>Semester 3</button>
+          <button>Semester 2</button>
+          <button>Semester 1</button>
+        </div>
+        <div class="card">
+          <div id="attendanceList"></div>
+          <div class="legend">
+            <span><span class="lsq present"></span> Attended</span>
+            <span><span class="lsq absent"></span> Absent</span>
+            <span><span class="lsq upcoming"></span> Not yet held</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== GRADES ===================== -->
+      <section class="panel" id="panel-grades">
+        <h1 class="page-title">Grades</h1>
+        <p class="page-sub">SGPA recalculates automatically as you enter letter grades.</p>
+        <div class="semtabs">
+          <button>Semester 4</button>
+          <button>Semester 3</button>
+          <button class="active">Semester 2</button>
+          <button>Semester 1</button>
+        </div>
+        <div class="card">
+          <table>
+            <thead><tr><th>Subject</th><th>Credits</th><th>Grade</th><th>Points</th><th>Weighted</th></tr></thead>
+            <tbody>
+              <tr><td>Foundation of AI &amp; ML</td><td class="num">3</td><td class="num">A</td><td class="num">8</td><td class="num">24</td></tr>
+              <tr><td>Computer Programming</td><td class="num">3</td><td class="num">A</td><td class="num">8</td><td class="num">24</td></tr>
+              <tr><td>Computer Programming Lab</td><td class="num">1</td><td class="num">A+</td><td class="num">9</td><td class="num">9</td></tr>
+              <tr><td>Communication Skills</td><td class="num">2</td><td class="num">A</td><td class="num">8</td><td class="num">16</td></tr>
+              <tr><td>Engineering Mathematics-I</td><td class="num">4</td><td class="num">A</td><td class="num">8</td><td class="num">32</td></tr>
+              <tr><td>Applied Physics</td><td class="num">3</td><td class="num">D</td><td class="num">4</td><td class="num">12</td></tr>
+              <tr><td>Indian Constitution <span class="badge badge-info" style="margin-left:6px">0 credit</span></td><td class="num">0</td><td class="num">C</td><td class="num">—</td><td class="num">excluded</td></tr>
+            </tbody>
+          </table>
+          <div style="display:flex;justify-content:flex-end;margin-top:16px;gap:28px;align-items:baseline">
+            <div style="font-size:12px;color:var(--text-muted)">Total credits <b class="num" style="color:var(--text)">21</b></div>
+            <div style="font-size:12px;color:var(--text-muted)">SGPA <span class="mono" style="font-size:22px;font-weight:600;color:var(--ink)">8.45</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== PREDICTOR ===================== -->
+      <section class="panel" id="panel-predictor">
+        <h1 class="page-title">CGPA Predictor</h1>
+        <p class="page-sub">Set expected grades for Semester 4 to see how they'd shape your CGPA.</p>
+        <div class="pred-grid">
+          <div class="card">
+            <div class="card-label">Semester 4 — expected grades</div>
+            <div id="predictorSubjects"></div>
+            <div class="field" style="margin-top:16px">
+              <label for="targetCgpa">Target CGPA</label>
+              <input type="number" id="targetCgpa" step="0.01" value="8.60">
+            </div>
+            <button class="btn btn-accent" id="runSim" style="width:100%;justify-content:center">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg>
+              Run simulation
+            </button>
+          </div>
+          <div>
+            <div class="card" style="margin-bottom:16px">
+              <div class="card-label">Projected trajectory</div>
+              <canvas id="predChart" height="80"></canvas>
+            </div>
+            <div class="result-grid">
+              <div class="result-card"><div class="card-label">Best case</div><div class="val mono" id="bestCase">—</div></div>
+              <div class="result-card"><div class="card-label">Worst case</div><div class="val mono" id="worstCase">—</div></div>
+              <div class="result-card"><div class="card-label">Current trend</div><div class="val mono" id="trendCase">—</div></div>
+            </div>
+            <div class="card" style="margin-top:16px;text-align:center">
+              <div class="card-label">Minimum SGPA needed to hit your target</div>
+              <div class="hero-mono" id="minSgpa">8.10</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== TASKS ===================== -->
+      <section class="panel" id="panel-tasks">
+        <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:22px;flex-wrap:wrap;gap:12px">
+          <div>
+            <h1 class="page-title" style="margin-bottom:4px">Task Scheduler</h1>
+            <p class="page-sub" style="margin:0">6 tasks this week · 2 overdue</p>
+          </div>
+          <div class="seg" id="taskSeg">
+            <button class="active" data-view="list">List</button>
+            <button data-view="calendar">Calendar</button>
+            <button data-view="kanban">Kanban</button>
+          </div>
+        </div>
+        <div class="card" id="taskListView"></div>
+        <div class="cal" id="taskCalView" style="display:none"></div>
+        <div class="kanban" id="taskKanbanView" style="display:none"></div>
+      </section>
+
+      <!-- ===================== RESOURCES ===================== -->
+      <section class="panel" id="panel-resources">
+        <h1 class="page-title">Resources &amp; Notes</h1>
+        <p class="page-sub">Data Structures &amp; Algorithms · Semester 4</p>
+        <div class="card">
+          <div class="pinned-section">
+            <div class="card-label">📌 Pinned by admin</div>
+            <div class="res-item"><span class="badge badge-info">Article</span><div><b style="font-size:13.5px">Official Syllabus — Semester 4</b><div class="task-meta">university.edu/syllabus/sem4</div></div></div>
+            <div class="res-item"><span class="badge badge-info">Drive</span><div><b style="font-size:13.5px">Reference Textbook (Cormen) — Drive link</b><div class="task-meta">Shared by Admin</div></div></div>
+          </div>
+          <div class="card-label">My notes &amp; links</div>
+          <div class="res-item"><span class="badge badge-safe">Notes</span><div><b style="font-size:13.5px">Linked Lists — full lecture notes</b><div class="task-meta">Updated 2 days ago</div></div></div>
+          <div class="res-item"><span class="badge badge-warning">Video</span><div><b style="font-size:13.5px">Recursion, explained simply — YouTube</b><div class="task-meta">Added last week</div></div></div>
+          <button class="btn btn-outline btn-sm" style="margin-top:6px">+ Add note or link</button>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<script>
+const GRADE_POINTS = {O:10,A_PLUS:9,A:8,B_PLUS:7,B:6,C:5,D:4,F:0};
+const GRADE_LABELS = {O:'O',A_PLUS:'A+',A:'A',B_PLUS:'B+',B:'B',C:'C',D:'D',F:'F'};
+
+/* ---------- NAV ---------- */
+const navItems = document.querySelectorAll('#nav .nav-item');
+navItems.forEach(btn=>{
+  btn.addEventListener('click',()=>showPanel(btn.dataset.panel));
+});
+document.querySelectorAll('[data-goto]').forEach(el=>el.addEventListener('click',()=>showPanel(el.dataset.goto)));
+
+function showPanel(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  navItems.forEach(n=>n.classList.toggle('active', n.dataset.panel===id));
+  document.getElementById('crumbLabel').textContent = document.querySelector(`.nav-item[data-panel="${id}"]`).textContent.trim();
+}
+
+/* ---------- THEME ---------- */
+document.getElementById('themeToggle').addEventListener('click', ()=>{
+  document.documentElement.classList.toggle('dark');
+  renderDashChart(); renderPredChart();
+});
+
+/* ---------- ATTENDANCE DATA + LEDGER ---------- */
+let attendance = [
+  {id:'a1', name:'Data Structures & Algorithms', total:20, attended:17},
+  {id:'a2', name:'Applied Physics', total:18, attended:12},
+  {id:'a3', name:'Engineering Mathematics-II', total:16, attended:9},
+];
+
+function status(pct){
+  if(pct>=75) return {cls:'safe', label:'Safe'};
+  if(pct>=65) return {cls:'warning', label:'Warning'};
+  return {cls:'critical', label:'Critical'};
+}
+function statusIcon(cls){
+  if(cls==='safe') return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m5 13 5 5L19 7"/></svg>';
+  if(cls==='warning') return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 9v4M12 17h.01"/><path d="m10.3 3.9-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>';
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M18 6 6 18M6 6l12 12"/></svg>';
+}
+
+function ledgerHTML(sub, withActions){
+  const pct = sub.total===0 ? 0 : (sub.attended/sub.total*100);
+  const s = status(pct);
+  let squares='';
+  for(let i=0;i<sub.total;i++){
+    squares += `<div class="lsq ${i<sub.attended?'present':'absent'}"></div>`;
+  }
+  for(let i=0;i<3;i++){ squares += `<div class="lsq upcoming"></div>`; }
+  return `
+    <div class="ledger-row">
+      <div class="ledger-meta">
+        <div class="ledger-name">${sub.name}</div>
+        <div class="ledger-pct"><span class="badge badge-${s.cls}">${statusIcon(s.cls)} ${pct.toFixed(1)}% · ${s.label}</span></div>
+      </div>
+      <div class="ledger-strip">${squares}</div>
+      ${withActions ? `
+      <div class="ledger-actions">
+        <button class="btn btn-outline btn-sm" onclick="logClass('${sub.id}',true)">Mark present</button>
+        <button class="btn btn-ghost btn-sm" onclick="logClass('${sub.id}',false)">Mark absent</button>
+      </div>` : ''}
+    </div>`;
+}
+
+function logClass(id, present){
+  const sub = attendance.find(s=>s.id===id);
+  sub.total += 1;
+  if(present) sub.attended += 1;
+  renderAttendance(); renderDashboard();
+}
+
+function renderAttendance(){
+  document.getElementById('attendanceList').innerHTML = attendance.map(s=>ledgerHTML(s,true)).join('');
+}
+
+function renderDashboard(){
+  const sorted = [...attendance].sort((a,b)=> (a.attended/a.total) - (b.attended/b.total));
+  document.getElementById('dashLedger').innerHTML = sorted.slice(0,2).map(s=>ledgerHTML(s,false)).join('');
+}
+
+/* ---------- TASKS ---------- */
+const tasks = [
+  {title:'Submit DSA Assignment 3', subject:'Data Structures', due:'Jul 15', day:15, priority:'high', status:'todo'},
+  {title:'Physics Lab Report', subject:'Applied Physics', due:'Jul 16', day:16, priority:'medium', status:'in_progress'},
+  {title:'Revise Networks — Unit 2', subject:'Computer Networks', due:'Jul 18', day:18, priority:'low', status:'todo'},
+  {title:'Group Project Meeting Prep', subject:'DBMS', due:'Jul 20', day:20, priority:'medium', status:'in_progress'},
+  {title:'Math Assignment 4', subject:'Engineering Mathematics-II', due:'Jul 22', day:22, priority:'high', status:'done'},
+  {title:'Mid-sem Exam Revision', subject:'Operating Systems', due:'Jul 25', day:25, priority:'high', status:'todo'},
+];
+const priorityColor = {high:'var(--critical)', medium:'var(--warning)', low:'var(--text-soft)'};
+
+function renderDashTasks(){
+  const upcoming = tasks.filter(t=>t.status!=='done').slice(0,3);
+  document.getElementById('dashTasks').innerHTML = upcoming.map(t=>`
+    <div class="task-row" style="padding:8px 0">
+      <span class="dot dot-${t.priority}"></span>
+      <span class="task-title">${t.title}</span>
+      <span class="task-meta num">${t.due}</span>
+    </div>`).join('');
+}
+
+function renderTaskList(){
+  document.getElementById('taskListView').innerHTML = tasks.map(t=>`
+    <div class="task-row">
+      <span class="dot dot-${t.priority}"></span>
+      <div class="task-title">${t.title}<div class="task-meta">${t.subject}</div></div>
+      <span class="badge badge-info">${t.status.replace('_',' ')}</span>
+      <span class="task-meta num" style="min-width:50px;text-align:right">${t.due}</span>
+    </div>`).join('');
+}
+
+function renderKanban(){
+  const cols = [['todo','To Do'],['in_progress','In Progress'],['done','Done']];
+  document.getElementById('taskKanbanView').innerHTML = cols.map(([key,label])=>`
+    <div class="kcol">
+      <h4>${label} · ${tasks.filter(t=>t.status===key).length}</h4>
+      ${tasks.filter(t=>t.status===key).map(t=>`
+        <div class="kcard">
+          <div class="kcard-title">${t.title}</div>
+          <div class="kcard-foot"><span class="tag">${t.subject}</span><span class="num" style="display:flex;align-items:center;gap:5px"><span class="dot dot-${t.priority}"></span>${t.due}</span></div>
+        </div>`).join('')}
+    </div>`).join('');
+}
+
+function renderCalendar(){
+  // July 2026 starts on a Wednesday
+  const firstDayOffset = 3; // Sun=0 ... Wed=3
+  const daysInMonth = 31;
+  let cells='';
+  for(let i=0;i<firstDayOffset;i++) cells += `<div class="cal-cell"></div>`;
+  for(let d=1; d<=daysInMonth; d++){
+    const dayTasks = tasks.filter(t=>t.day===d);
+    const isToday = d===14;
+    cells += `<div class="cal-cell ${isToday?'today':''}">
+      <div class="cal-date">${d}</div>
+      ${dayTasks.map(t=>`<div class="cal-chip" style="background:${priorityColor[t.priority]}">${t.title}</div>`).join('')}
+    </div>`;
+  }
+  document.getElementById('taskCalView').innerHTML = `
+    <div class="cal-head">${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d=>`<div>${d}</div>`).join('')}</div>
+    <div class="cal-body">${cells}</div>`;
+}
+
+document.querySelectorAll('#taskSeg button').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('#taskSeg button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    const view = btn.dataset.view;
+    document.getElementById('taskListView').style.display = view==='list' ? 'block':'none';
+    document.getElementById('taskCalView').style.display = view==='calendar' ? 'block':'none';
+    document.getElementById('taskKanbanView').style.display = view==='kanban' ? 'grid':'none';
+  });
+});
+
+/* ---------- GRADE ENGINE ---------- */
+function calculateSGPA(subjects){
+  let w=0,c=0;
+  subjects.forEach(s=>{ if(s.credits===0) return; w += s.credits*GRADE_POINTS[s.grade]; c += s.credits; });
+  return c===0 ? 0 : w/c;
+}
+function calculateCGPA(sems){
+  let w=0,c=0;
+  sems.forEach(s=>{ w+= s.sgpa*s.credits; c+=s.credits; });
+  return c===0 ? 0 : w/c;
+}
+
+const completedSemesters = [
+  {sem:1, sgpa:8.10, credits:20},
+  {sem:2, sgpa:8.30, credits:21},
+  {sem:3, sgpa:8.45, credits:21},
+];
+const futureSubjects = [
+  {id:'f1', name:'Operating Systems', credits:4, grade:'A'},
+  {id:'f2', name:'Database Management', credits:3, grade:'A'},
+  {id:'f3', name:'Computer Networks', credits:3, grade:'B_PLUS'},
+  {id:'f4', name:'OS Lab', credits:1, grade:'A_PLUS'},
+  {id:'f5', name:'DBMS Lab', credits:1, grade:'A'},
+];
+
+function renderPredictorSubjects(){
+  document.getElementById('predictorSubjects').innerHTML = futureSubjects.map(s=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border)">
+      <div style="font-size:13px">${s.name}<span class="task-meta"> · ${s.credits} cr</span></div>
+      <select class="grade-select" onchange="futureSubjects.find(f=>f.id==='${s.id}').grade=this.value">
+        ${Object.keys(GRADE_POINTS).map(g=>`<option value="${g}" ${g===s.grade?'selected':''}>${GRADE_LABELS[g]}</option>`).join('')}
+      </select>
+    </div>`).join('');
+}
+
+let dashChartInstance, predChartInstance;
+
+function themeColors(){
+  const dark = document.documentElement.classList.contains('dark');
+  return {
+    ink: dark ? '#2E8B8B' : '#2B3A67',
+    chalk: '#2E8B8B',
+    grid: dark ? '#2B2F3B' : '#E2E5EA',
+    text: dark ? '#9CA3AF' : '#64748B',
+  };
+}
+
+function renderDashChart(){
+  const c = themeColors();
+  const ctx = document.getElementById('dashChart');
+  if(dashChartInstance) dashChartInstance.destroy();
+  dashChartInstance = new Chart(ctx, {
+    type:'line',
+    data:{ labels:['Sem 1','Sem 2','Sem 3'],
+      datasets:[{ data:[8.10,8.30,8.45], borderColor:c.ink, backgroundColor:'transparent',
+        tension:.3, pointRadius:4, pointBackgroundColor:c.ink, borderWidth:2.5 }]},
+    options:{ plugins:{legend:{display:false}},
+      scales:{ y:{min:7,max:9, grid:{color:c.grid}, ticks:{color:c.text, font:{family:'IBM Plex Mono'}}},
+               x:{grid:{display:false}, ticks:{color:c.text, font:{family:'Inter'}}} } }
+  });
+}
+
+function runSimulation(){
+  const c = themeColors();
+  const target = parseFloat(document.getElementById('targetCgpa').value) || 8.6;
+  const completedCredits = completedSemesters.reduce((s,x)=>s+x.credits,0);
+  const completedWeighted = completedSemesters.reduce((s,x)=>s+x.sgpa*x.credits,0);
+  const currentCGPA = completedWeighted/completedCredits;
+
+  const remainingCredits = futureSubjects.filter(s=>s.credits>0).reduce((s,x)=>s+x.credits,0);
+  const predictedSGPA = calculateSGPA(futureSubjects);
+  const predictedCGPA = calculateCGPA([...completedSemesters, {sgpa:predictedSGPA, credits:remainingCredits}]);
+
+  const bestSGPA = 10;
+  const worstSGPA = 4; // per PRD worst-case uses D grades
+  const bestCGPA = calculateCGPA([...completedSemesters, {sgpa:bestSGPA, credits:remainingCredits}]);
+  const worstCGPA = calculateCGPA([...completedSemesters, {sgpa:worstSGPA, credits:remainingCredits}]);
+  const trendCGPA = calculateCGPA([...completedSemesters, {sgpa:currentCGPA, credits:remainingCredits}]);
+
+  let minSgpaNeeded = ((target*(completedCredits+remainingCredits)) - completedWeighted) / remainingCredits;
+  minSgpaNeeded = Math.max(0, Math.min(10, minSgpaNeeded));
+
+  document.getElementById('bestCase').textContent = bestCGPA.toFixed(2);
+  document.getElementById('worstCase').textContent = worstCGPA.toFixed(2);
+  document.getElementById('trendCase').textContent = trendCGPA.toFixed(2);
+  document.getElementById('minSgpa').textContent = minSgpaNeeded.toFixed(2);
+
+  if(predChartInstance) predChartInstance.destroy();
+  const ctx = document.getElementById('predChart');
+  predChartInstance = new Chart(ctx, {
+    type:'line',
+    data:{ labels:['Sem 1','Sem 2','Sem 3','Sem 4'],
+      datasets:[
+        { label:'Actual', data:[8.10,8.30,8.45,null], borderColor:c.ink, borderWidth:2.5, pointRadius:4, tension:.3 },
+        { label:'Predicted', data:[null,null,8.45,predictedCGPA], borderColor:c.chalk, borderDash:[6,4], borderWidth:2.5, pointRadius:4, tension:.3 },
+      ]},
+    options:{ plugins:{legend:{display:true, labels:{color:c.text, font:{family:'Inter', size:11}}}},
+      scales:{ y:{min:7,max:9, grid:{color:c.grid}, ticks:{color:c.text, font:{family:'IBM Plex Mono'}}},
+               x:{grid:{display:false}, ticks:{color:c.text, font:{family:'Inter'}}} } }
+  });
+}
+function renderPredChart(){ runSimulation(); }
+document.getElementById('runSim').addEventListener('click', runSimulation);
+
+/* ---------- INIT ---------- */
+renderAttendance();
+renderDashboard();
+renderDashTasks();
+renderTaskList();
+renderKanban();
+renderCalendar();
+renderPredictorSubjects();
+renderDashChart();
+runSimulation();
+</script>
+</body>
+</html>

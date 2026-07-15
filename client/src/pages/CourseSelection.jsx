@@ -5,7 +5,7 @@ import { BookOpen, CheckCircle2, GraduationCap, Calendar, ArrowRight } from 'luc
 import useAuthStore from '../store/authStore';
 import courseService from '../services/courseService';
 import Button from '../components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../components/ui/card';
+import { Card, CardLabel, CardSupporting } from '../components/ui/card';
 
 const CourseSelection = () => {
   const navigate = useNavigate();
@@ -17,7 +17,7 @@ const CourseSelection = () => {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    // Block access if user is already onboarded
+    document.title = 'Course & Semester Onboarding — AcadTracker';
     if (user?.isOnboarded) {
       navigate('/student/dashboard', { replace: true });
       return;
@@ -69,25 +69,29 @@ const CourseSelection = () => {
 
   if (loadingCourses || storeLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-950 via-indigo-950/40 to-slate-950">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-ink dark:border-chalk-teal border-t-transparent" />
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-slate-950 via-indigo-950/40 to-slate-950 p-4 py-12">
-      <div className="w-full max-w-3xl space-y-8">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4 py-12">
+      <div className="w-full max-w-2xl space-y-6">
+        {/* Header (§7.2) */}
         <div className="flex flex-col items-center space-y-2 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 border border-primary/20 text-primary shadow-lg shadow-primary/10">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-surface-2 border border-border text-ink dark:text-chalk-teal">
             <GraduationCap className="h-6 w-6" />
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Select Your Academic Program</h1>
-          <p className="text-sm text-muted-foreground">
-            Choose your degree program and your currently enrolled semester to initialize your dashboard
+          <h1 className="font-display text-2xl font-semibold text-foreground tracking-tight">
+            Select Your Academic Program
+          </h1>
+          <p className="text-sm text-text-muted max-w-md">
+            Choose your degree program and your currently enrolled semester to initialize your dashboard.
           </p>
         </div>
 
+        {/* Course Selection Cards */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {courses.map((course) => {
             const isSelected = selectedCourse?.id === course.id;
@@ -95,70 +99,66 @@ const CourseSelection = () => {
               <Card
                 key={course.id}
                 onClick={() => handleCourseClick(course)}
-                className={`cursor-pointer transition-all border ${
+                className={`cursor-pointer transition-all ${
                   isSelected
-                    ? 'border-primary bg-primary/10 shadow-lg shadow-primary/10 ring-2 ring-primary/40'
-                    : 'border-border/60 bg-card/80 hover:border-border hover:bg-card'
+                    ? 'border-ink dark:border-chalk-teal ring-1 ring-ink dark:ring-chalk-teal bg-surface-2'
+                    : 'hover:border-ink dark:hover:border-chalk-teal bg-surface'
                 }`}
               >
-                <CardHeader className="p-5 pb-3">
-                  <div className="flex items-center justify-between">
-                    <span className="rounded-full bg-muted/60 px-2.5 py-0.5 text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
-                      {course.department}
-                    </span>
-                    {isSelected && <CheckCircle2 className="h-5 w-5 text-primary" />}
-                  </div>
-                  <CardTitle className="text-base mt-2 font-bold">{course.name}</CardTitle>
-                </CardHeader>
-                <CardContent className="p-5 pt-0">
-                  <div className="flex items-center space-x-2 text-xs text-muted-foreground mt-1">
-                    <BookOpen className="h-3.5 w-3.5" />
-                    <span>Total {course.totalSemesters} Semesters</span>
-                  </div>
-                </CardContent>
+                <div className="flex items-center justify-between">
+                  <span className="mono rounded bg-surface-2 px-2 py-0.5 text-[11px] font-semibold text-text-muted border border-border">
+                    {course.department}
+                  </span>
+                  {isSelected && <CheckCircle2 className="h-4 w-4 text-ink dark:text-chalk-teal" />}
+                </div>
+                <h3 className="text-base mt-3 font-semibold text-foreground leading-snug">
+                  {course.name}
+                </h3>
+                <CardSupporting className="mt-2">
+                  <BookOpen className="h-3.5 w-3.5" />
+                  <span>Total {course.totalSemesters} Semesters</span>
+                </CardSupporting>
               </Card>
             );
           })}
         </div>
 
+        {/* Semester Selector */}
         {selectedCourse && (
-          <Card className="border-border/60 bg-card/80 backdrop-blur-md shadow-2xl">
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center space-x-2">
-                <Calendar className="h-5 w-5 text-primary" />
-                <span>Select Current Semester</span>
-              </CardTitle>
-              <CardDescription>
+          <Card className="space-y-4">
+            <div>
+              <CardLabel>Current Semester</CardLabel>
+              <h3 className="text-base font-semibold text-foreground">
                 Which semester are you currently studying in {selectedCourse.name}?
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-4 gap-3 sm:grid-cols-8">
-                {Array.from({ length: selectedCourse.totalSemesters }, (_, i) => i + 1).map((sem) => {
-                  const isSelected = selectedSemester === sem;
-                  return (
-                    <button
-                      key={sem}
-                      type="button"
-                      onClick={() => setSelectedSemester(sem)}
-                      className={`flex h-12 flex-col items-center justify-center rounded-lg border text-sm font-semibold transition-all ${
-                        isSelected
-                          ? 'border-primary bg-primary text-primary-foreground shadow-md shadow-primary/20'
-                          : 'border-border/80 bg-background/50 text-foreground hover:border-primary/50 hover:bg-background'
-                      }`}
-                    >
-                      <span>Sem {sem}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </CardContent>
-            <CardFooter className="flex justify-end pt-4">
-              <Button onClick={handleConfirm} disabled={submitting} className="w-full sm:w-auto px-8 shadow-md">
-                {submitting ? 'Initializing Dashboard...' : 'Confirm Program & Semester'}
-                {!submitting && <ArrowRight className="ml-2 h-4 w-4" />}
+              </h3>
+            </div>
+
+            <div className="grid grid-cols-4 gap-2.5 sm:grid-cols-8">
+              {Array.from({ length: selectedCourse.totalSemesters }, (_, i) => i + 1).map((sem) => {
+                const isSelected = selectedSemester === sem;
+                return (
+                  <button
+                    key={sem}
+                    type="button"
+                    onClick={() => setSelectedSemester(sem)}
+                    className={`flex h-11 items-center justify-center rounded-md border text-xs font-semibold transition-all cursor-pointer ${
+                      isSelected
+                        ? 'border-ink bg-ink text-white dark:border-chalk-teal dark:bg-chalk-teal dark:text-white shadow-xs'
+                        : 'border-border bg-surface-2 text-foreground hover:bg-surface'
+                    }`}
+                  >
+                    Sem {sem}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="flex justify-end pt-2 border-t border-border">
+              <Button onClick={handleConfirm} disabled={submitting} variant="accent" className="w-full sm:w-auto">
+                <span>{submitting ? 'Initializing...' : 'Confirm Program & Semester'}</span>
+                {!submitting && <ArrowRight className="h-4 w-4" />}
               </Button>
-            </CardFooter>
+            </div>
           </Card>
         )}
       </div>

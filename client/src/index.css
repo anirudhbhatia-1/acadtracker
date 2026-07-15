@@ -4,108 +4,128 @@
 
 @layer base {
   :root {
-    --background: 240 10% 96%;
-    --foreground: 222 47% 11%;
-    --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    --primary: 225 41% 29%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 180 50% 36%;
-    --secondary-foreground: 222 47% 11%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 65% 55%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 225 41% 29%;
+    /* Brand & Palette Tokens (design.md §3.1) */
+    --ink: #2B3A67;
+    --chalk-teal: #2E8B8B;
+    --paper: #F3F4F7;
+    --deep-ink: #14161F;
+
+    /* Semantic Status Tokens (design.md §3.1) */
+    --status-safe: #2F9E64;
+    --status-warning: #E8A33D;
+    --status-critical: #D64545;
+    --status-info: #3E6FD9;
+
+    /* Light Mode Theme Variables (design.md §10) */
+    --bg: var(--paper);
+    --surface: #FFFFFF;
+    --surface-2: #FAFAFB;
+    --border: #E2E5EA;
+    --text: #1E2433;
+    --text-muted: #64748B;
+    --text-soft: #8A93A3;
+    --accent: var(--ink);
+    --shadow: 0 1px 2px rgba(30, 36, 51, 0.06);
+
+    /* Status Tints for Badges (design.md §3.1 & §10) */
+    --safe-tint: #EAF7EF;
+    --warn-tint: #FDF3E4;
+    --crit-tint: #FBEAEA;
+    --info-tint: #EAEFFC;
+
+    /* Radius scale */
     --radius: 0.625rem;
   }
 
+  html.dark,
   .dark {
-    --background: 229 22% 10%;
-    --foreground: 210 40% 98%;
-    --card: 229 22% 13%;
-    --card-foreground: 210 40% 98%;
-    --popover: 229 22% 13%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 180 50% 36%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 225 41% 29%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 180 50% 36%;
-  }
-}
+    /* Dark Mode Theme Variables (design.md §10) - High contrast 4.5:1+ guaranteed */
+    --bg: var(--deep-ink);
+    --surface: #1B1E29;
+    --surface-2: #20232F;
+    --border: #2B2F3B;
+    --text: #F1F2F4;
+    --text-muted: #9CA3AF;
+    --text-soft: #6B7280;
+    --accent: var(--chalk-teal);
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 
-@layer base {
+    /* 15%-opacity status tints for dark mode (design.md §10) */
+    --safe-tint: rgba(47, 158, 100, 0.15);
+    --warn-tint: rgba(232, 163, 61, 0.15);
+    --crit-tint: rgba(214, 69, 69, 0.15);
+    --info-tint: rgba(62, 111, 217, 0.15);
+  }
+
   * {
-    @apply border-border;
+    @apply border-border box-border;
   }
+
   body {
-    @apply bg-paper dark:bg-deep-ink text-slate-800 dark:text-slate-100 font-sans antialiased;
+    @apply bg-background text-foreground font-sans antialiased m-0;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 }
 
-/* Custom dark mode styling for React Big Calendar */
-.calendar-dark-override .rbc-calendar {
-  color: hsl(var(--foreground));
+@layer utilities {
+  .mono {
+    font-family: "IBM Plex Mono", monospace;
+  }
+  .display {
+    font-family: Fraunces, serif;
+  }
 }
-.calendar-dark-override .rbc-header {
-  border-bottom: 1px solid hsl(var(--border));
-  padding: 10px 4px;
-  font-weight: 700;
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  background-color: hsl(var(--muted) / 0.3);
+
+/* Custom dark mode & theme styling for React Big Calendar */
+.rbc-calendar {
+  color: var(--text);
+  font-family: Inter, sans-serif;
 }
-.calendar-dark-override .rbc-month-view,
-.calendar-dark-override .rbc-time-view,
-.calendar-dark-override .rbc-agenda-view {
-  border: 1px solid hsl(var(--border));
-  border-radius: 12px;
-  overflow: hidden;
-  background-color: hsl(var(--card));
+.rbc-header {
+  border-bottom: 1px solid var(--border) !important;
+  padding: 10px 4px !important;
+  font-weight: 700 !important;
+  font-size: 0.8rem !important;
+  text-transform: uppercase !important;
+  background-color: var(--surface-2) !important;
+  color: var(--text) !important;
 }
-.calendar-dark-override .rbc-month-row + .rbc-month-row,
-.calendar-dark-override .rbc-day-bg + .rbc-day-bg,
-.calendar-dark-override .rbc-header + .rbc-header {
-  border-left: 1px solid hsl(var(--border));
+.rbc-month-view,
+.rbc-time-view,
+.rbc-agenda-view {
+  border: 1px solid var(--border) !important;
+  border-radius: 10px !important;
+  overflow: hidden !important;
+  background-color: var(--surface) !important;
 }
-.calendar-dark-override .rbc-month-row {
-  border-top: 1px solid hsl(var(--border));
+.rbc-month-row + .rbc-month-row,
+.rbc-day-bg + .rbc-day-bg,
+.rbc-header + .rbc-header {
+  border-left: 1px solid var(--border) !important;
 }
-.calendar-dark-override .rbc-off-range-bg {
-  background-color: hsl(var(--muted) / 0.2);
+.rbc-month-row {
+  border-top: 1px solid var(--border) !important;
 }
-.calendar-dark-override .rbc-today {
-  background-color: hsl(var(--primary) / 0.15);
+.rbc-off-range-bg {
+  background-color: var(--surface-2) !important;
 }
-.calendar-dark-override .rbc-toolbar button {
-  color: hsl(var(--foreground));
-  border: 1px solid hsl(var(--border));
-  border-radius: 8px;
-  padding: 6px 14px;
-  font-weight: 600;
-  font-size: 0.85rem;
-  background-color: hsl(var(--card));
-  transition: all 0.15s ease;
+.rbc-today {
+  background-color: rgba(46, 139, 139, 0.1) !important;
 }
-.calendar-dark-override .rbc-toolbar button:hover,
-.calendar-dark-override .rbc-toolbar button:active,
-.calendar-dark-override .rbc-toolbar button.rbc-active {
-  background-color: hsl(var(--primary));
-  color: hsl(var(--primary-foreground));
-  border-color: hsl(var(--primary));
+.rbc-toolbar button {
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 6px !important;
+  padding: 6px 14px !important;
+  font-weight: 600 !important;
+  font-size: 0.85rem !important;
+  background-color: var(--surface) !important;
+  transition: all 0.15s ease !important;
+}
+.rbc-toolbar button:hover,
+.rbc-toolbar button:active,
+.rbc-toolbar button.rbc-active {
+  background-color: var(--accent) !important;
+  color: #FFFFFF !important;
+  border-color: var(--accent) !important;
 }

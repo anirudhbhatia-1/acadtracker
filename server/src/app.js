@@ -11,12 +11,30 @@ const subjectsRoutes = require('./modules/subjects/subjects.routes');
 const gradesRoutes = require('./modules/grades/grades.routes');
 const attendanceRoutes = require('./modules/attendance/attendance.routes');
 const tasksRoutes = require('./modules/tasks/tasks.routes');
+const predictorRoutes = require('./modules/predictor/predictor.routes');
+const notesRoutes = require('./modules/notes/notes.routes');
+const resourcesRoutes = require('./modules/resources/resources.routes');
+const adminRoutes = require('./modules/admin/admin.routes');
 
 const app = express();
 
-// CORS Middleware — allow only configured frontend origin
+// CORS Middleware — allow configured and local dev frontend origins
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+].filter(Boolean);
+
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
 };
@@ -58,6 +76,10 @@ app.use('/api/v1/subjects', subjectsRoutes);
 app.use('/api/v1/grades', gradesRoutes);
 app.use('/api/v1/attendance', attendanceRoutes);
 app.use('/api/v1/tasks', tasksRoutes);
+app.use('/api/v1/predictor', predictorRoutes);
+app.use('/api/v1/notes', notesRoutes);
+app.use('/api/v1/resources', resourcesRoutes);
+app.use('/api/v1/admin', adminRoutes);
 
 // 404 handler for undefined endpoints
 app.use((req, res) => {

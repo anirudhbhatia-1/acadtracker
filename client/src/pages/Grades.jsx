@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { useAcademicStore } from '@/store/academicStore';
-import { Card } from '@/components/ui/card';
+import { Card, CardLabel, CardHero } from '@/components/ui/card';
 import GradeRow from '@/components/GradeRow';
 import SGPADisplay from '@/components/SGPADisplay';
-import { Award, GraduationCap, ArrowLeft } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { AsyncState, EmptyState } from '@/components/common/AsyncState';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Award, GraduationCap } from 'lucide-react';
 
 const Grades = () => {
   const { user } = useAuthStore();
@@ -20,99 +21,132 @@ const Grades = () => {
 
   const filteredSubjects = subjects.filter((s) => s.semesterNo === Number(selectedSemester));
 
-  const getGradeForSubject = (subId) => {
-    const found = grades.find(
-      (g) => g.subjectId === subId && g.semesterNo === Number(selectedSemester)
-    );
-    return found?.letterGrade;
+  const getGradeForSubject = (subjectId) => {
+    const found = grades.find((g) => g.subjectId === subjectId);
+    return found ? found.letterGrade : '';
   };
 
-  const handleGradeChange = async (subjectId, semNo, letterGrade) => {
-    await upsertGrade(subjectId, semNo, letterGrade);
+  const handleGradeChange = async (subjectId, semesterNoOrGrade, gradeVal) => {
+    const letterGrade = gradeVal !== undefined ? gradeVal : semesterNoOrGrade;
+    const semesterNo = gradeVal !== undefined ? Number(semesterNoOrGrade) : Number(selectedSemester);
+    await upsertGrade(subjectId, semesterNo, letterGrade);
   };
 
-  // Compute total graded credit hours for current tab
-  const totalGradedCredits = filteredSubjects.reduce((sum, sub) => {
-    if (sub.creditHours > 0 && sub.type !== 'AUDIT' && getGradeForSubject(sub.id)) {
-      return sum + sub.creditHours;
-    }
-    return sum;
+  const currentSemesterSGPA = Array.isArray(semesterSGPAs)
+    ? semesterSGPAs.find((s) => s.semesterNo === Number(selectedSemester))?.sgpa
+    : semesterSGPAs[selectedSemester] ?? semesterSGPAs[String(selectedSemester)];
+
+  const totalGradedCredits = filteredSubjects.reduce((acc, sub) => {
+    const hasGrade = grades.some((g) => g.subjectId === sub.id && g.letterGrade !== '');
+    return hasGrade ? acc + sub.creditHours : acc;
   }, 0);
 
-  const currentSGPA = semesterSGPAs[String(selectedSemester)] || 0;
+  const gradesSkeleton = (
+    <div className="overflow-x-auto">
+      <table className="w-full text-left border-collapse">
+        <thead>
+          <tr className="border-b border-border bg-surface-2 text-xs uppercase font-semibold text-text-muted">
+            <th className="py-3 px-4">Subject Name & Details</th>
+            <th className="py-3 px-4 text-center">Credit Hours</th>
+            <th className="py-3 px-4 text-right">Letter Grade</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-border">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <tr key={i}>
+              <td className="py-3.5 px-4 space-y-1.5">
+                <Skeleton className="h-4 w-48" />
+                <Skeleton className="h-3 w-24" />
+              </td>
+              <td className="py-3.5 px-4 text-center">
+                <Skeleton className="h-4 w-8 mx-auto" />
+              </td>
+              <td className="py-3.5 px-4 text-right">
+                <Skeleton className="h-8 w-24 ml-auto rounded-md" />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-background p-4 sm:p-8">
-      <div className="max-w-6xl mx-auto space-y-6">
-        {/* Header & Navigation */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <Link
-              to="/student/dashboard"
-              className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-primary transition-colors mb-2"
-            >
-              <ArrowLeft className="w-4 h-4 mr-1.5" /> Back to Dashboard
-            </Link>
-            <h1 className="text-3xl font-extrabold text-foreground tracking-tight flex items-center gap-3">
-              <GraduationCap className="w-8 h-8 text-primary" />
-              Academic Grades Engine
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Enter subject letter grades to auto-calculate SGPA and live cumulative CGPA.
-            </p>
-          </div>
-
-          {/* Live Overall CGPA Banner */}
-          <div className="flex items-center gap-4 bg-gradient-to-r from-primary/10 via-purple-500/10 to-indigo-500/10 border border-primary/20 px-5 py-3 rounded-2xl shadow-sm">
-            <div className="p-2 rounded-lg bg-primary text-primary-foreground shadow-sm">
-              <Award className="w-5 h-5" />
-            </div>
-            <div>
-              <span className="text-xs font-semibold uppercase text-muted-foreground block">
-                Overall Cumulative CGPA
-              </span>
-              <span className="text-2xl font-black text-foreground">
-                {cgpa !== undefined ? Number(cgpa).toFixed(2) : '0.00'}
-              </span>
-            </div>
-          </div>
+    <div className="space-y-6 animate-in fade-in-50 duration-200">
+      {/* Page Title & Semester Segmented Tabs (§7.5 & student-platform-mockup.html) */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="font-display text-2xl font-semibold text-foreground tracking-tight flex items-center gap-2.5">
+            <Award className="w-6 h-6 text-ink dark:text-chalk-teal" />
+            Academic Grades & SGPA
+          </h1>
+          <p className="text-sm text-text-muted mt-0.5">
+            Enter course letter grades to instantly compute SGPA per semester and cumulative CGPA.
+          </p>
         </div>
 
-        {/* Semester Tabs */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-border">
-          {Array.from({ length: Math.max(user?.currentSemester || 4, 4) }, (_, i) => i + 1).map((sem) => (
+        {/* Semester Segmented Tabs (§7.5) */}
+        <div className="flex items-center gap-1.5 overflow-x-auto py-1">
+          {[1, 2, 3, 4, 5, 6, 7, 8].map((sem) => (
             <button
               key={sem}
               onClick={() => setSelectedSemester(sem)}
-              className={`px-4 py-2.5 rounded-t-xl text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
+              className={`px-3.5 py-1.5 rounded-md text-xs font-semibold transition-all cursor-pointer ${
                 Number(selectedSemester) === sem
-                  ? 'bg-card text-primary border-t-2 border-x border-border shadow-xs'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'
+                  ? 'bg-ink text-white shadow-sm dark:bg-chalk-teal dark:text-ink font-bold'
+                  : 'bg-surface text-text-muted border-border hover:text-foreground hover:bg-surface-2'
               }`}
             >
-              Semester {sem}
+              Sem {sem}
             </button>
           ))}
         </div>
+      </div>
 
-        {/* Grade Entry Table Card */}
-        <Card className="bg-card border border-border shadow-md overflow-hidden">
-          {isLoading ? (
-            <div className="p-12 text-center text-muted-foreground animate-pulse">
-              Loading semester subjects and grades...
-            </div>
-          ) : filteredSubjects.length === 0 ? (
-            <div className="p-12 text-center text-muted-foreground">
-              No subjects registered for Semester {selectedSemester}.
+      {/* SGPA & CGPA Summary Cards Layout (§7.5) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card className="flex items-center justify-between p-5">
+          <div>
+            <CardLabel>Cumulative CGPA</CardLabel>
+            <CardHero className={!(cgpa > 0 || grades?.some((g) => g.letterGrade !== '')) ? 'text-2xl font-bold text-text-muted' : undefined}>
+              {cgpa !== undefined && (cgpa > 0 || grades?.some((g) => g.letterGrade !== '')) ? Number(cgpa).toFixed(2) : 'Not available'}
+            </CardHero>
+          </div>
+          <div className="w-12 h-12 rounded-xl bg-surface-2 flex items-center justify-center text-ink dark:text-chalk-teal">
+            <GraduationCap className="w-6 h-6" />
+          </div>
+        </Card>
+
+        <SGPADisplay
+          semesterNo={selectedSemester}
+          sgpa={currentSemesterSGPA}
+          totalCredits={totalGradedCredits}
+        />
+      </div>
+
+      {/* Grade Entry Table Card (§7.5) */}
+      <Card className="overflow-hidden p-0">
+        <AsyncState
+          isLoading={isLoading}
+          onRetry={() => user?.courseId && fetchAcademicData(user.courseId)}
+          skeleton={gradesSkeleton}
+        >
+          {filteredSubjects.length === 0 ? (
+            <div className="p-6">
+              <EmptyState
+                title={`No subjects registered in Semester ${selectedSemester}`}
+                description="Switch to another semester tab above or check with your course advisor if subjects are missing."
+                icon={Award}
+              />
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-border bg-muted/40 text-xs uppercase font-semibold text-muted-foreground">
-                    <th className="py-3.5 px-4">Subject Name & Details</th>
-                    <th className="py-3.5 px-4 text-center">Credit Hours</th>
-                    <th className="py-3.5 px-4 text-right">Awarded Letter Grade</th>
+                  <tr className="border-b border-border bg-surface-2 text-xs uppercase font-semibold text-text-muted">
+                    <th className="py-3 px-4">Subject Name & Details</th>
+                    <th className="py-3 px-4 text-center">Credit Hours</th>
+                    <th className="py-3 px-4 text-right">Letter Grade</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
@@ -128,15 +162,8 @@ const Grades = () => {
               </table>
             </div>
           )}
-        </Card>
-
-        {/* Live Semester SGPA Display */}
-        <SGPADisplay
-          semesterNo={selectedSemester}
-          sgpa={currentSGPA}
-          totalCredits={totalGradedCredits}
-        />
-      </div>
+        </AsyncState>
+      </Card>
     </div>
   );
 };

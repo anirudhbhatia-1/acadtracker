@@ -6,8 +6,8 @@ const { calculateSGPA, calculateCGPA } = require('./gradeEngine');
 /**
  * Helper to compute semester SGPAs and total CGPA from a student's grades list
  */
-const computeSGPAsAndCGPA = async (studentId) => {
-  const grades = await prisma.grade.findMany({
+const computeSGPAsAndCGPA = async (studentId, preloadedGrades = null) => {
+  const grades = preloadedGrades || await prisma.grade.findMany({
     where: { studentId },
     include: { subject: true },
     orderBy: [{ semesterNo: 'asc' }, { subject: { name: 'asc' } }],
