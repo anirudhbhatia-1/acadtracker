@@ -8,6 +8,7 @@ import CourseSelection from './pages/CourseSelection';
 import StudentDashboard from './pages/StudentDashboard';
 import Attendance from './pages/Attendance';
 import Grades from './pages/Grades';
+import Tasks from './pages/Tasks';
 import AdminDashboard from './pages/AdminDashboard';
 import ProtectedRoute from './routes/ProtectedRoute';
 import AdminRoute from './routes/AdminRoute';
@@ -46,6 +47,7 @@ function App() {
           <Route path="/student/dashboard" element={<StudentDashboard />} />
           <Route path="/student/attendance" element={<Attendance />} />
           <Route path="/student/grades" element={<Grades />} />
+          <Route path="/student/tasks" element={<Tasks />} />
         </Route>
 
         {/* Admin routes */}

@@ -238,43 +238,43 @@ Week 13   │ Launch — Production Deployment
 
 ### 3.1 Backend — Tasks Module
 
-- [ ] `GET /api/v1/tasks/me` — get own tasks (filter by status, category, priority)
-- [ ] `POST /api/v1/tasks` — create task (title, description, dueDate, priority, category, subjectId?)
-- [ ] `PATCH /api/v1/tasks/:id` — update task (status, priority, title, due date)
-- [ ] `DELETE /api/v1/tasks/:id` — delete task (only own tasks)
-- [ ] `POST /api/v1/tasks/broadcast` — admin creates notice visible to all students
-- [ ] Auto-flag overdue tasks (where `dueDate < now` and `status !== DONE`)
+- [x] `GET /api/v1/tasks/me` — get own tasks (filter by status, category, priority)
+- [x] `POST /api/v1/tasks` — create task (title, description, dueDate, priority, category, subjectId?)
+- [x] `PATCH /api/v1/tasks/:id` — update task (status, priority, title, due date)
+- [x] `DELETE /api/v1/tasks/:id` — delete task (only own tasks)
+- [x] `POST /api/v1/tasks/broadcast` — admin creates notice visible to all students
+- [x] Auto-flag overdue tasks (where `dueDate < now` and `status !== DONE`)
 
 ### 3.2 Frontend — Task Scheduler Page
 
-- [ ] `Tasks.jsx` — main page with 3 view toggle buttons: List / Calendar / Kanban
-- [ ] **List View** — `TaskList.jsx`
+- [x] `Tasks.jsx` — main page with 3 view toggle buttons: List / Calendar / Kanban
+- [x] **List View** — `TaskList.jsx`
   - Sorted by due date (soonest first)
   - Filter bar: by status, priority, category
   - Overdue tasks highlighted with red badge
   - Click task to open edit modal
-- [ ] **Calendar View** — `CalendarView.jsx`
+- [x] **Calendar View** — `CalendarView.jsx`
   - Monthly/weekly view using React Big Calendar
   - Tasks appear on their due date
   - Click a task to open edit modal
   - Click empty date to open create modal
-- [ ] **Kanban View** — `KanbanBoard.jsx`
+- [x] **Kanban View** — `KanbanBoard.jsx`
   - 3 columns: To Do / In Progress / Done
   - Drag and drop cards between columns
   - Each card shows: title, due date, priority color indicator, category tag
-- [ ] **Add Task Modal** — form with all fields (title, desc, due date/time, priority, category, subject)
-- [ ] **Edit Task Modal** — pre-filled form, status dropdown, delete button
-- [ ] In-app reminder toast: fires 24 hours before task due date (checked on page load)
-- [ ] `taskStore.js` (Zustand) — global task state
-- [ ] `taskService.js` — all API calls
+- [x] **Add Task Modal** — form with all fields (title, desc, due date/time, priority, category, subject)
+- [x] **Edit Task Modal** — pre-filled form, status dropdown, delete button
+- [x] In-app reminder toast: fires 24 hours before task due date (checked on page load)
+- [x] `taskStore.js` (Zustand) — global task state
+- [x] `taskService.js` — all API calls
 
 ### ✅ Phase 3 Done When
-- [ ] Students can create, edit, delete tasks
-- [ ] All 3 views (List, Calendar, Kanban) display tasks correctly
-- [ ] Drag-and-drop works in Kanban view
-- [ ] Overdue tasks are visually highlighted
-- [ ] 24-hour reminder toast appears for upcoming tasks
-- [ ] Admin broadcast notice appears for all students
+- [x] Students can create, edit, delete tasks
+- [x] All 3 views (List, Calendar, Kanban) display tasks correctly
+- [x] Drag-and-drop works in Kanban view
+- [x] Overdue tasks are visually highlighted
+- [x] 24-hour reminder toast appears for upcoming tasks
+- [x] Admin broadcast notice appears for all students
 
 ---
 

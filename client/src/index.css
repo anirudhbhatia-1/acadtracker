@@ -57,3 +57,55 @@
     @apply bg-paper dark:bg-deep-ink text-slate-800 dark:text-slate-100 font-sans antialiased;
   }
 }
+
+/* Custom dark mode styling for React Big Calendar */
+.calendar-dark-override .rbc-calendar {
+  color: hsl(var(--foreground));
+}
+.calendar-dark-override .rbc-header {
+  border-bottom: 1px solid hsl(var(--border));
+  padding: 10px 4px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  background-color: hsl(var(--muted) / 0.3);
+}
+.calendar-dark-override .rbc-month-view,
+.calendar-dark-override .rbc-time-view,
+.calendar-dark-override .rbc-agenda-view {
+  border: 1px solid hsl(var(--border));
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: hsl(var(--card));
+}
+.calendar-dark-override .rbc-month-row + .rbc-month-row,
+.calendar-dark-override .rbc-day-bg + .rbc-day-bg,
+.calendar-dark-override .rbc-header + .rbc-header {
+  border-left: 1px solid hsl(var(--border));
+}
+.calendar-dark-override .rbc-month-row {
+  border-top: 1px solid hsl(var(--border));
+}
+.calendar-dark-override .rbc-off-range-bg {
+  background-color: hsl(var(--muted) / 0.2);
+}
+.calendar-dark-override .rbc-today {
+  background-color: hsl(var(--primary) / 0.15);
+}
+.calendar-dark-override .rbc-toolbar button {
+  color: hsl(var(--foreground));
+  border: 1px solid hsl(var(--border));
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  background-color: hsl(var(--card));
+  transition: all 0.15s ease;
+}
+.calendar-dark-override .rbc-toolbar button:hover,
+.calendar-dark-override .rbc-toolbar button:active,
+.calendar-dark-override .rbc-toolbar button.rbc-active {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border-color: hsl(var(--primary));
+}

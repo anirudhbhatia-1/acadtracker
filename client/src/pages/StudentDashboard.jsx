@@ -79,34 +79,38 @@ const StudentDashboard = () => {
             </CardContent>
           </Card>
 
-          <Card className="border-border/60 bg-card/80 backdrop-blur-md hover:border-amber-500/40 transition-colors">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Pending Tasks</CardTitle>
-              <CheckSquare className="h-4 w-4 text-amber-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-black text-foreground">{pendingTasksCount}</div>
-              <p className="text-xs text-muted-foreground mt-1">Academic assignments & todos</p>
-            </CardContent>
-          </Card>
+          <Link to="/student/tasks" className="block">
+            <Card className="border-border/60 bg-card/80 backdrop-blur-md hover:border-amber-500/40 transition-colors h-full">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Pending Tasks</CardTitle>
+                <CheckSquare className="h-4 w-4 text-amber-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-black text-foreground">{pendingTasksCount}</div>
+                <p className="text-xs text-muted-foreground mt-1">Academic assignments & todos</p>
+              </CardContent>
+            </Card>
+          </Link>
 
-          <Card className="border-border/60 bg-card/80 backdrop-blur-md hover:border-purple-500/40 transition-colors">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Next Deadline</CardTitle>
-              <Clock className="h-4 w-4 text-purple-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-sm font-bold text-foreground mt-1 truncate">{nextDeadlineText}</div>
-              <p className="text-xs text-muted-foreground mt-1">Task Scheduler (Phase 3)</p>
-            </CardContent>
-          </Card>
+          <Link to="/student/tasks" className="block">
+            <Card className="border-border/60 bg-card/80 backdrop-blur-md hover:border-purple-500/40 transition-colors h-full">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Next Deadline</CardTitle>
+                <Clock className="h-4 w-4 text-purple-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-sm font-bold text-foreground mt-1 truncate">{nextDeadlineText}</div>
+                <p className="text-xs text-muted-foreground mt-1">View all assignments & schedules</p>
+              </CardContent>
+            </Card>
+          </Link>
         </div>
 
         {/* Recharts SGPA Line Chart as per Section 2.5 */}
         <SGPALineChart semesterSGPAs={semesterSGPAs} />
 
         {/* Quick Navigation Action Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card className="p-6 bg-gradient-to-r from-emerald-600/10 to-teal-600/10 border-emerald-500/20 shadow-md flex flex-col justify-between">
             <div>
               <div className="flex items-center gap-3 mb-2">
@@ -140,6 +144,25 @@ const StudentDashboard = () => {
               <Link to="/student/grades">
                 <Button className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/20">
                   Enter Subject Grades <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </Link>
+            </div>
+          </Card>
+
+          <Card className="p-6 bg-gradient-to-r from-amber-600/10 to-orange-600/10 border-amber-500/20 shadow-md flex flex-col justify-between">
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <CheckSquare className="w-6 h-6 text-amber-500" />
+                <h3 className="text-lg font-bold text-foreground">Task & Schedule Board</h3>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Organize assignments, projects, and exams across List, Calendar, and interactive Kanban views.
+              </p>
+            </div>
+            <div className="mt-6">
+              <Link to="/student/tasks">
+                <Button className="w-full sm:w-auto bg-amber-600 hover:bg-amber-700 text-white shadow-md shadow-amber-500/20">
+                  Open Task Scheduler <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </Link>
             </div>
