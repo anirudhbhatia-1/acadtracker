@@ -42,22 +42,20 @@ async function verifyPhase2() {
     // Let's check: 72 + 72 + x = 169 -> x = 25. But 25 points from 4 credits = 25/4 = 6.25 (not a letter grade).
     // Let's make subjects that directly match letter grades:
     // Sub 1 (CS101): 4 credits, A_PLUS (9) -> 36 points
-    // Sub 2 (CS102): 4 credits, A_PLUS (9) -> 36 points
-    // Sub 3 (CS103): 4 credits, A (8)      -> 32 points
-    // Sub 4 (CS104): 4 credits, A (8)      -> 32 points
-    // Sub 5 (CS105): 3 credits, A (8)      -> 24 points
-    // Sub 6 (CS106): 1 credit,  A_PLUS (9) -> 9 points
-    // Sub Audit:     0 credits, O (10)     -> 0 points (excluded)
-    // Total credits = 20, Total points = 169. 169 / 20 = 8.45 exact!
-
+    // Using the exact 11 subjects from the official PRD worked example as test case:
+    // Total weighted points = 177.5, Total credits = 21. 177.5 / 21 = 8.45 exact!
     const subsToCreate = [
-      { name: 'CS101 AI Math I', code: `${courseCode}_S1`, semesterNo: 1, creditHours: 4, type: 'THEORY', targetGrade: 'A_PLUS' },
-      { name: 'CS102 Python Lab', code: `${courseCode}_S2`, semesterNo: 1, creditHours: 4, type: 'LAB', targetGrade: 'A_PLUS' },
-      { name: 'CS103 Logic Design', code: `${courseCode}_S3`, semesterNo: 1, creditHours: 4, type: 'THEORY', targetGrade: 'A' },
-      { name: 'CS104 Data Structures', code: `${courseCode}_S4`, semesterNo: 1, creditHours: 4, type: 'THEORY', targetGrade: 'A' },
-      { name: 'CS105 Ethics', code: `${courseCode}_S5`, semesterNo: 1, creditHours: 3, type: 'ELECTIVE', targetGrade: 'A' },
-      { name: 'CS106 Seminar', code: `${courseCode}_S6`, semesterNo: 1, creditHours: 1, type: 'AUDIT', targetGrade: 'A_PLUS' },
-      { name: 'CS107 Audit Zero Credit', code: `${courseCode}_S7`, semesterNo: 1, creditHours: 0, type: 'AUDIT', targetGrade: 'O' },
+      { name: 'Foundation of AI & ML', code: `${courseCode}_S1`, semesterNo: 1, creditHours: 3, type: 'THEORY', targetGrade: 'A' },
+      { name: 'Computer Programming', code: `${courseCode}_S2`, semesterNo: 1, creditHours: 3, type: 'THEORY', targetGrade: 'A' },
+      { name: 'Computer Programming Lab', code: `${courseCode}_S3`, semesterNo: 1, creditHours: 1, type: 'LAB', targetGrade: 'A_PLUS' },
+      { name: 'Communication Skills', code: `${courseCode}_S4`, semesterNo: 1, creditHours: 2, type: 'THEORY', targetGrade: 'A' },
+      { name: 'Communication Skills Lab', code: `${courseCode}_S5`, semesterNo: 1, creditHours: 1, type: 'LAB', targetGrade: 'A' },
+      { name: 'Culture Education – 1', code: `${courseCode}_S6`, semesterNo: 1, creditHours: 2, type: 'THEORY', targetGrade: 'A' },
+      { name: 'Indian Constitution', code: `${courseCode}_S7`, semesterNo: 1, creditHours: 0, type: 'AUDIT', targetGrade: 'C' },
+      { name: 'Engineering Mathematics-I', code: `${courseCode}_S8`, semesterNo: 1, creditHours: 4, type: 'THEORY', targetGrade: 'A' },
+      { name: 'Applied Physics', code: `${courseCode}_S9`, semesterNo: 1, creditHours: 3, type: 'THEORY', targetGrade: 'D' },
+      { name: 'Applied Physics Lab', code: `${courseCode}_S10`, semesterNo: 1, creditHours: 1, type: 'LAB', targetGrade: 'A' },
+      { name: 'Entrepreneurship Development', code: `${courseCode}_S11`, semesterNo: 1, creditHours: 1, type: 'THEORY', targetGrade: 'D' },
     ];
 
     const createdSubjects = [];

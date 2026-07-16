@@ -4,12 +4,13 @@ import { Badge } from '@/components/ui/badge';
 
 const LETTER_GRADES = [
   { label: 'O (10 Pts)', value: 'O' },
-  { label: 'A+ (9 Pts)', value: 'A_PLUS' },
-  { label: 'A (8 Pts)', value: 'A' },
-  { label: 'B+ (7 Pts)', value: 'B_PLUS' },
-  { label: 'B (6 Pts)', value: 'B' },
-  { label: 'C (5 Pts)', value: 'C' },
-  { label: 'D (4 Pts)', value: 'D' },
+  { label: 'A+ (9.5 Pts)', value: 'A_PLUS' },
+  { label: 'A (9 Pts)', value: 'A' },
+  { label: 'B+ (8.5 Pts)', value: 'B_PLUS' },
+  { label: 'B (8 Pts)', value: 'B' },
+  { label: 'C (7 Pts)', value: 'C' },
+  { label: 'D (6 Pts)', value: 'D' },
+  { label: 'E (5 Pts)', value: 'E' },
   { label: 'F (0 Pts)', value: 'F' },
 ];
 

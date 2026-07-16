@@ -132,7 +132,7 @@ const calculateBestCase = (actualSemesters = [], remainingSemesters = []) => {
   for (const sem of remainingSemesters) {
     const credits = Number(sem.totalCredits || 0);
     if (credits > 0) {
-      totalWeightedPoints += 10.0 * credits; // O grade = 10 points
+      totalWeightedPoints += getGradePoints('O') * credits; // O grade = 10 points
       totalCredits += credits;
     }
   }
@@ -142,7 +142,7 @@ const calculateBestCase = (actualSemesters = [], remainingSemesters = []) => {
 };
 
 /**
- * Calculate Worst Case CGPA assuming all D (4 grade points) grades in remaining semesters.
+ * Calculate Worst Case CGPA assuming all D (6 grade points) grades in remaining semesters.
  *
  * @param {Array<Object>} actualSemesters - Completed semesters { sgpa, totalCredits }
  * @param {Array<Object>} remainingSemesters - Future semesters with { totalCredits }
@@ -163,7 +163,7 @@ const calculateWorstCase = (actualSemesters = [], remainingSemesters = []) => {
   for (const sem of remainingSemesters) {
     const credits = Number(sem.totalCredits || 0);
     if (credits > 0) {
-      totalWeightedPoints += 4.0 * credits; // D grade = 4 points
+      totalWeightedPoints += getGradePoints('D') * credits; // D grade = 6 points
       totalCredits += credits;
     }
   }

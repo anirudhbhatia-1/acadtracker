@@ -4,12 +4,15 @@
  */
 const GRADE_POINTS = {
   O: 10,
-  A_PLUS: 9,
-  A: 8,
-  B_PLUS: 7,
-  B: 6,
-  C: 5,
-  D: 4,
+  A_PLUS: 9.5,
+  'A+': 9.5,
+  A: 9,
+  B_PLUS: 8.5,
+  'B+': 8.5,
+  B: 8,
+  C: 7,
+  D: 6,
+  E: 5,
   F: 0,
 };
 
