@@ -15,7 +15,9 @@ import {
   Moon, 
   LogOut, 
   AlertCircle, 
-  Clock 
+  Clock,
+  MoreHorizontal,
+  X
 } from 'lucide-react';
 import useAuthStore from '../store/authStore';
 import { useAcademicStore } from '../store/academicStore';
@@ -36,7 +38,16 @@ const AppLayout = () => {
   const [markedReadIds, setMarkedReadIds] = useState(() => new Set());
   const [adminAtRiskCount, setAdminAtRiskCount] = useState(null);
   const [adminAtRiskList, setAdminAtRiskList] = useState([]);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showMobileMore, setShowMobileMore] = useState(false);
   const notifRef = useRef(null);
+  const userMenuRef = useRef(null);
+  const mobileMoreRef = useRef(null);
+
+  useEffect(() => {
+    setShowUserMenu(false);
+    setShowMobileMore(false);
+  }, [location.pathname]);
 
   const isAdmin = user?.role === 'ADMIN';
 
@@ -158,6 +169,12 @@ const AppLayout = () => {
     const handleClickOutside = (event) => {
       if (notifRef.current && !notifRef.current.contains(event.target)) {
         setShowNotifications(false);
+      }
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setShowUserMenu(false);
+      }
+      if (mobileMoreRef.current && !mobileMoreRef.current.contains(event.target)) {
+        setShowMobileMore(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -366,12 +383,40 @@ const AppLayout = () => {
               {isDarkMode ? <Sun className="w-4 h-4 text-chalk-teal" /> : <Moon className="w-4 h-4" />}
             </button>
 
-            {/* User Avatar */}
-            <div 
-              className="w-8 h-8 rounded-full bg-ink dark:bg-chalk-teal text-white flex items-center justify-center text-xs font-semibold font-display uppercase cursor-pointer"
-              title={`${user?.name || user?.email} (${isAdmin ? 'Admin' : 'Student'})`}
-            >
-              {getInitials()}
+            {/* User Avatar & Dropdown */}
+            <div className="relative" ref={userMenuRef}>
+              <div 
+                onClick={() => setShowUserMenu(!showUserMenu)}
+                className="w-8 h-8 rounded-full bg-ink dark:bg-chalk-teal text-white flex items-center justify-center text-xs font-semibold font-display uppercase cursor-pointer hover:opacity-90 transition-opacity"
+                title={`${user?.name || user?.email} (${isAdmin ? 'Admin' : 'Student'})`}
+              >
+                {getInitials()}
+              </div>
+
+              {showUserMenu && (
+                <div className="absolute right-0 mt-2 w-56 rounded-lg bg-surface border border-border shadow-md z-50 overflow-hidden animate-in fade-in-50 duration-150">
+                  <div className="px-3.5 py-3 border-b border-border bg-surface-2">
+                    <p className="text-xs font-semibold text-foreground truncate">
+                      {user?.name || user?.email?.split('@')[0]}
+                    </p>
+                    <p className="text-[11px] text-text-muted truncate mt-0.5">
+                      {user?.email}
+                    </p>
+                    <span className="inline-block mt-1.5 px-2 py-0.5 rounded text-[10px] font-semibold bg-surface border border-border text-text-muted">
+                      {isAdmin ? 'System Administrator' : `Student · Sem ${user?.studentProfile?.currentSemester || 1}`}
+                    </span>
+                  </div>
+                  <div className="p-1.5">
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-semibold text-status-critical hover:bg-crit-tint transition-colors"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span>Sign Out</span>
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </header>
@@ -383,33 +428,90 @@ const AppLayout = () => {
       </div>
 
       {/* MOBILE BOTTOM TAB BAR (< md breakpoint) */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-border z-40 py-1.5 px-2 flex items-center justify-around">
-        {navLinks.slice(0, 5).map((item) => {
-          const Icon = item.icon;
-          const isActive = location.pathname.startsWith(item.path);
-          return (
-            <NavLink
-              key={item.path}
-              to={item.path}
+      <div className="md:hidden" ref={mobileMoreRef}>
+        {/* Mobile More Popover Sheet */}
+        {showMobileMore && navLinks.length > 4 && (
+          <div className="fixed bottom-16 right-2 left-2 sm:left-auto sm:w-72 bg-surface border border-border rounded-xl shadow-lg z-50 overflow-hidden animate-in fade-in-50 slide-in-from-bottom-2 duration-150">
+            <div className="px-4 py-2.5 border-b border-border bg-surface-2 flex items-center justify-between">
+              <span className="text-xs font-semibold text-foreground uppercase tracking-wider">More Destinations</span>
+              <button 
+                onClick={() => setShowMobileMore(false)}
+                className="text-text-muted hover:text-foreground transition-colors"
+                title="Close"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="p-1.5 divide-y divide-border">
+              <div className="py-1">
+                {navLinks.slice(4).map((item) => {
+                  const Icon = item.icon;
+                  const isActive = location.pathname.startsWith(item.path);
+                  return (
+                    <NavLink
+                      key={item.path}
+                      to={item.path}
+                      onClick={() => setShowMobileMore(false)}
+                      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium transition-colors ${
+                        isActive 
+                          ? 'bg-ink text-white dark:bg-chalk-teal dark:text-white font-semibold' 
+                          : 'text-foreground hover:bg-surface-2'
+                      }`}
+                    >
+                      <Icon className="w-4 h-4 flex-shrink-0" />
+                      <span>{item.name}</span>
+                    </NavLink>
+                  );
+                })}
+              </div>
+              <div className="pt-1 mt-1">
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-status-critical hover:bg-crit-tint transition-colors"
+                >
+                  <LogOut className="w-4 h-4 flex-shrink-0" />
+                  <span>Sign Out</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <nav className="fixed bottom-0 left-0 right-0 bg-surface border-t border-border z-40 py-1.5 px-2 flex items-center justify-around">
+          {(navLinks.length > 4 ? navLinks.slice(0, 4) : navLinks).map((item) => {
+            const Icon = item.icon;
+            const isActive = location.pathname.startsWith(item.path);
+            return (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                className={`flex flex-col items-center gap-1 py-1 px-3 rounded-md text-[11px] font-medium transition-colors ${
+                  isActive 
+                    ? 'text-ink dark:text-chalk-teal font-semibold' 
+                    : 'text-text-muted hover:text-foreground'
+                }`}
+              >
+                <Icon className="w-5 h-5" />
+                <span>{item.name.split(' ')[0]}</span>
+              </NavLink>
+            );
+          })}
+
+          {navLinks.length > 4 && (
+            <button
+              onClick={() => setShowMobileMore(!showMobileMore)}
               className={`flex flex-col items-center gap-1 py-1 px-3 rounded-md text-[11px] font-medium transition-colors ${
-                isActive 
+                showMobileMore || navLinks.slice(4).some((i) => location.pathname.startsWith(i.path))
                   ? 'text-ink dark:text-chalk-teal font-semibold' 
                   : 'text-text-muted hover:text-foreground'
               }`}
             >
-              <Icon className="w-5 h-5" />
-              <span>{item.name.split(' ')[0]}</span>
-            </NavLink>
-          );
-        })}
-        <button
-          onClick={handleLogout}
-          className="flex flex-col items-center gap-1 py-1 px-3 text-[11px] font-medium text-status-critical"
-        >
-          <LogOut className="w-5 h-5" />
-          <span>Exit</span>
-        </button>
-      </nav>
+              <MoreHorizontal className="w-5 h-5" />
+              <span>More</span>
+            </button>
+          )}
+        </nav>
+      </div>
     </div>
   );
 };
