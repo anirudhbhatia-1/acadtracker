@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import AttendanceLedgerStrip from '@/components/common/AttendanceLedgerStrip';
 import AttendanceEditModal from '@/components/AttendanceEditModal';
+import CalendarView from '@/components/CalendarView';
 import { AsyncState, EmptyState } from '@/components/common/AsyncState';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CalendarCheck, AlertTriangle, CheckCircle2 } from 'lucide-react';
@@ -16,6 +17,7 @@ const Attendance = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [subjectToEdit, setSubjectToEdit] = useState(null);
   const [recordToEdit, setRecordToEdit] = useState(null);
+  const [calendarModal, setCalendarModal] = useState(null); // { sub, record }
 
   useEffect(() => {
     if (user?.courseId) {
@@ -112,17 +114,23 @@ const Attendance = () => {
                   <div key={sub.id} className="py-2">
                     <AttendanceLedgerStrip
                       subjectName={sub.name}
+                      subjectCode={sub.code}
+                      subjectType={sub.type}
+                      subjectId={sub.id}
                       semesterNo={sub.semesterNo}
                       attendedClasses={record.attendedClasses}
                       totalClasses={record.totalClasses}
                       percentage={sum.percentage}
                       status={sum.status}
                       records={record.records}
+                      recordId={record.id}
+                      updatedAt={record.updatedAt}
                       maxSessions={28}
                       onLogAttended={() => handleQuickLog(sub.id, 'ATTENDED', 1, 1)}
                       onLogMissed={() => handleQuickLog(sub.id, 'MISSED', 1, 0)}
                       onLogBatch={(status, totalInc, attendedInc) => handleQuickLog(sub.id, status, totalInc, attendedInc)}
                       onEdit={() => handleOpenEdit(sub, record)}
+                      onOpenCalendar={() => setCalendarModal({ sub, record })}
                     />
                     {/* Target Helper Info */}
                     <div className="pb-2 pt-1 flex items-center justify-between text-xs text-text-soft">
@@ -149,19 +157,6 @@ const Attendance = () => {
             </div>
           )}
         </AsyncState>
-
-        {/* Ledger Legend (§4 & student-platform-mockup.html) */}
-        <div className="flex flex-wrap items-center gap-4 pt-6 mt-4 border-t border-border text-xs text-text-muted">
-          <span className="inline-flex items-center gap-1.5 font-medium">
-            <span className="w-2.5 h-2.5 rounded-[2px] bg-status-safe inline-block" /> Attended
-          </span>
-          <span className="inline-flex items-center gap-1.5 font-medium">
-            <span className="w-2.5 h-2.5 rounded-[2px] border-[1.5px] border-status-critical inline-block" /> Absent
-          </span>
-          <span className="inline-flex items-center gap-1.5 font-medium">
-            <span className="w-2.5 h-2.5 rounded-[2px] border-[1.5px] border-dashed border-border inline-block" /> Scheduled / Upcoming
-          </span>
-        </div>
       </Card>
 
       <AttendanceEditModal
@@ -170,6 +165,15 @@ const Attendance = () => {
         subject={subjectToEdit}
         record={recordToEdit}
       />
+
+      {calendarModal && (
+        <CalendarView
+          mode="attendance"
+          subject={calendarModal.sub}
+          record={calendarModal.record}
+          onClose={() => setCalendarModal(null)}
+        />
+      )}
     </div>
   );
 };
