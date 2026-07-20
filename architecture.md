@@ -483,6 +483,44 @@ enum ResourceType {
   GOOGLE_DRIVE
   OTHER
 }
+
+// Student weekly class schedule (Timetable)
+model ClassSchedule {
+  id         String   @id @default(cuid())
+  studentId  String
+  subjectId  String
+  semesterNo Int
+  dayOfWeek  Int      // 0 = Sunday, 1 = Monday ... 6 = Saturday
+  createdAt  DateTime @default(now())
+
+  student    User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  subject    Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, subjectId, semesterNo, dayOfWeek])
+}
+
+// University/Admin maintained academic events (Exams, Holidays, Deadlines)
+model AcademicEvent {
+  id          String    @id @default(cuid())
+  title       String
+  description String?   @db.Text
+  date        DateTime
+  type        EventType @default(EXAM)
+  courseId    String?   // null = global, value = specific course
+  semesterNo  Int?      // null = course-wide, value = specific semester within course
+  createdById String?
+  createdAt   DateTime  @default(now())
+
+  course      Course?   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  createdBy   User?     @relation(fields: [createdById], references: [id], onDelete: SetNull)
+}
+
+enum EventType {
+  EXAM
+  DEADLINE
+  HOLIDAY
+  OTHER
+}
 ```
 
 ---
@@ -636,6 +674,23 @@ enum ResourceType {
 | POST | `/resources/pin` | Admin | Pin a resource to a subject for all students |
 | PATCH | `/resources/pin/:id` | Admin | Edit a pinned resource |
 | DELETE | `/resources/pin/:id` | Admin | Remove a pinned resource |
+
+### 6.12 Weekly Timetable (Schedule)
+
+| Method | Endpoint | Access | Description |
+|--------|----------|--------|-------------|
+| GET | `/schedule/me?semesterNo=` | Student | Get own weekly timetable strictly scoped by current semester |
+| POST | `/schedule` | Student | Save class days (`daysOfWeek`) for a specific subject in current semester |
+
+### 6.13 Academic Calendar Hub (Events)
+
+| Method | Endpoint | Access | Description |
+|--------|----------|--------|-------------|
+| GET | `/academic-events` | Student | Get read-only events filtered strictly server-side by student's `courseId` & `currentSemester` |
+| GET | `/admin/academic-events?courseId=&semesterNo=` | Admin | Get all events or filtered by scope |
+| POST | `/admin/academic-events` | Admin | Create academic event (Global, Course-Wide, or Semester-Scoped) |
+| PATCH | `/admin/academic-events/:id` | Admin | Update academic event |
+| DELETE | `/admin/academic-events/:id` | Admin | Delete academic event |
 
 ---
 

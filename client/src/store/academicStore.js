@@ -4,12 +4,16 @@ import toast from 'react-hot-toast';
 import gradeService from '../services/gradeService';
 import attendanceService from '../services/attendanceService';
 import subjectService from '../services/subjectService';
+import scheduleService from '../services/scheduleService';
+import academicEventService from '../services/academicEventService';
 import { getAttendanceSummary } from '../utils/attendanceUtils';
 
 export const useAcademicStore = create((set, get) => ({
   subjects: [],
   grades: [],
   attendance: [],
+  schedules: [],
+  academicEvents: [],
   semesterSGPAs: {},
   cgpa: 0,
   isLoading: false,
@@ -23,10 +27,12 @@ export const useAcademicStore = create((set, get) => ({
     if (!courseId) return;
     set({ isLoading: true, error: null });
     try {
-      const [subjectsRes, gradesRes, attendanceRes] = await Promise.all([
+      const [subjectsRes, gradesRes, attendanceRes, schedulesRes, eventsRes] = await Promise.all([
         subjectService.getSubjectsByCourse(courseId, semesterFilter),
         gradeService.getMyGrades(),
         attendanceService.getMyAttendance(),
+        scheduleService.getMySchedule(),
+        academicEventService.getStudentEvents().catch(() => ({ data: { events: [] } })),
       ]);
 
       const subjects = subjectsRes.data?.subjects || [];
@@ -34,11 +40,15 @@ export const useAcademicStore = create((set, get) => ({
       const semesterSGPAs = gradesRes.data?.semesterSGPAs || {};
       const cgpa = gradesRes.data?.cgpa || 0;
       const attendance = attendanceRes.data?.attendance || [];
+      const schedules = schedulesRes.data?.schedules || [];
+      const academicEvents = eventsRes.data?.events || [];
 
       set({
         subjects,
         grades,
         attendance,
+        schedules,
+        academicEvents,
         semesterSGPAs,
         cgpa,
         isLoading: false,
@@ -47,6 +57,15 @@ export const useAcademicStore = create((set, get) => ({
       console.error('Failed to load academic data:', error);
       const errMsg = error.response?.data?.message || 'Failed to load academic data';
       set({ error: errMsg, isLoading: false });
+    }
+  },
+
+  fetchAcademicEvents: async () => {
+    try {
+      const res = await academicEventService.getStudentEvents();
+      set({ academicEvents: res.data?.events || [] });
+    } catch (error) {
+      console.error('Failed to fetch academic events:', error);
     }
   },
 
@@ -265,6 +284,34 @@ export const useAcademicStore = create((set, get) => ({
       return updatedGrade;
     } catch (error) {
       const errMsg = error.response?.data?.message || 'Failed to update grade';
+      toast.error(errMsg);
+      throw error;
+    }
+  },
+
+  /**
+   * Save / replace class schedule for a specific subject + semester combination
+   */
+  saveSchedule: async (subjectId, semesterNo, daysOfWeek) => {
+    try {
+      const res = await scheduleService.saveMySchedule({
+        subjectId,
+        semesterNo: Number(semesterNo),
+        daysOfWeek,
+      });
+      const updatedSchedulesForSub = res.data?.schedules || [];
+
+      const currentSchedules = get().schedules.filter(
+        (sc) => !(sc.subjectId === subjectId && Number(sc.semesterNo) === Number(semesterNo))
+      );
+
+      set({
+        schedules: [...currentSchedules, ...updatedSchedulesForSub],
+      });
+      toast.success('Timetable saved successfully');
+      return updatedSchedulesForSub;
+    } catch (error) {
+      const errMsg = error.response?.data?.message || 'Failed to save timetable';
       toast.error(errMsg);
       throw error;
     }

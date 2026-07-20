@@ -17,10 +17,12 @@ const Grades = lazy(() => import('./pages/Grades'));
 const Tasks = lazy(() => import('./pages/Tasks'));
 const Predictor = lazy(() => import('./pages/Predictor'));
 const Resources = lazy(() => import('./pages/Resources'));
+const ScheduleSetup = lazy(() => import('./pages/ScheduleSetup'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const CourseManager = lazy(() => import('./pages/CourseManager'));
 const StudentDirectory = lazy(() => import('./pages/StudentDirectory'));
 const StudentProfile = lazy(() => import('./pages/StudentProfile'));
+const AdminAcademicCalendar = lazy(() => import('./pages/admin/AdminAcademicCalendar'));
 
 const PageLoading = () => (
   <div className="flex min-h-screen items-center justify-center bg-background">
@@ -90,6 +92,7 @@ function App() {
               <Route path="/student/tasks" element={<Tasks />} />
               <Route path="/student/predictor" element={<Predictor />} />
               <Route path="/student/resources" element={<Resources />} />
+              <Route path="/student/schedule" element={<ScheduleSetup />} />
             </Route>
           </Route>
 
@@ -100,6 +103,7 @@ function App() {
               <Route path="/admin/courses" element={<CourseManager />} />
               <Route path="/admin/students" element={<StudentDirectory />} />
               <Route path="/admin/students/:id" element={<StudentProfile />} />
+              <Route path="/admin/academic-calendar" element={<AdminAcademicCalendar />} />
             </Route>
           </Route>
 

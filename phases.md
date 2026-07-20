@@ -493,6 +493,28 @@ Week 13   │ Launch — Production Deployment
 
 ---
 
+## 📅 Phase 7 — Academic Calendar & Weekly Timetable Hub
+**Duration:** Week 13 (Post-Phase 6 Extension)
+**Goal:** Semester-scoped student class schedules and 3-tier university/admin academic event calendar integration.
+
+### 7.1 Weekly Timetable (Schedule)
+- [x] Backend schedule setup API (`GET /api/v1/schedule/me?semesterNo=`, `POST /api/v1/schedule`)
+- [x] Strict course and semester scoping validation (prevent saving schedules for subjects outside current semester)
+- [x] Frontend schedule setup screen (`ScheduleSetupModal.jsx`) allowing day selection per subject
+- [x] Attendance ledger generator dynamically adopting class schedule days (falling back to all 7 days if unscheduled)
+
+### 7.2 Academic Calendar Hub (Events)
+- [x] Backend `AcademicEvent` CRUD module (`GET /api/v1/academic-events` for students, `POST/PATCH/DELETE /api/v1/admin/academic-events` for admin)
+- [x] Strict 3-tier visibility scope: Global (`null`/`null`), Course-Wide (`courseId`/`null`), and Semester-Scoped (`courseId`/`semesterNo`)
+- [x] Frontend Admin Academic Calendar page (`AdminAcademicCalendar.jsx`) mounted at `/admin/academic-calendar` with scope tags and scope selectors
+- [x] Student calendar merger (`CalendarView.jsx` and `Tasks.jsx`) rendering `status-info` chips for academic events alongside personal tasks without counting toward "Due Soon"
+
+### ✅ Phase 7 Done When
+- [x] Timetable schedule isolation verified (`node phase7.schedule.verify.js` passed 100%)
+- [x] Academic event scoping and student read-only clean response verified (`node phase7.events.verify.js` passed 100%)
+
+---
+
 ## 🚀 Launch — Production Deployment
 **Duration:** Week 13
 
@@ -567,7 +589,8 @@ Phase 0 (Setup)
 | Phase 4 — Predictor + Resources | ✅ Complete | July 15, 2026 | July 15, 2026 | CGPA What-If simulation engine, Recharts PredictionChart, study notes hub with tag filters, and admin/student resource bookmarking verified (`100% pass`) |
 | Phase 5 — Admin Tools | ✅ Complete | July 15, 2026 | July 15, 2026 | Full Admin Suite (`GET/PATCH /api/v1/admin/students`), directory filtering, profile tabs, and backend verification scripts passed (`100% success`) |
 | Phase 6 — Polish & Testing | ✅ Complete | July 15, 2026 | July 15, 2026 | Full design audit, responsive bento grids, attendance redesign & safe editing, role-aware notifications feed, and all automated suites (`phase1-5`) passed (`100% success`) |
-| Launch | 🟡 In Progress | July 15, 2026 | — | Preparing production deployment across Railway (Backend/DB) and Vercel (Frontend) |
+| Phase 7 — Academic Calendar Hub & Timetable | ✅ Complete | July 18, 2026 | July 20, 2026 | Weekly class schedule engine and 3-tier academic calendar hub verified with zero regressions (`phase7.schedule.verify.js` & `phase7.events.verify.js` passed `100% success`) |
+| Launch | 🟡 In Progress | July 20, 2026 | — | Preparing production deployment across Railway (Backend/DB) and Vercel (Frontend) |
 
 **Status Legend:** ⬜ Not Started &nbsp;|&nbsp; 🟡 In Progress &nbsp;|&nbsp; ✅ Complete &nbsp;|&nbsp; 🔴 Blocked
 

@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import useAuthStore from '../store/authStore';
 import Button from './ui/button';
 import { Badge } from './ui/badge';
-import { Shield, LayoutDashboard, BookOpen, Users, LogOut } from 'lucide-react';
+import { Shield, LayoutDashboard, BookOpen, Users, LogOut, Calendar } from 'lucide-react';
 
 const AdminNavbar = () => {
   const { user, logout } = useAuthStore();
@@ -24,6 +24,11 @@ const AdminNavbar = () => {
       label: 'Student Directory',
       path: '/admin/students',
       icon: Users,
+    },
+    {
+      label: 'Academic Calendar',
+      path: '/admin/academic-calendar',
+      icon: Calendar,
     },
   ];
 

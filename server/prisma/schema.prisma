@@ -24,6 +24,8 @@ model User {
   tasks           Task[]
   notes           Note[]
   resourcesAdded  Resource[]
+  classSchedules  ClassSchedule[]
+  academicEvents  AcademicEvent[]
   course          Course?      @relation(fields: [courseId], references: [id], onDelete: SetNull)
 
   @@index([role])
@@ -45,6 +47,7 @@ model Course {
 
   subjects       Subject[]
   students       User[]
+  academicEvents AcademicEvent[]
 }
 
 model Subject {
@@ -64,6 +67,7 @@ model Subject {
   tasks         Task[]
   notes         Note[]
   resources     Resource[]
+  classSchedules ClassSchedule[]
 
   @@unique([courseId, code])
   @@index([courseId])
@@ -219,3 +223,45 @@ enum ResourceType {
   GOOGLE_DRIVE
   OTHER
 }
+
+model ClassSchedule {
+  id         String   @id @default(cuid())
+  studentId  String
+  student    User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  subjectId  String
+  subject    Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  semesterNo Int
+  dayOfWeek  Int      // 0 = Sunday ... 6 = Saturday
+  createdAt  DateTime @default(now())
+
+  @@unique([studentId, subjectId, semesterNo, dayOfWeek])
+  @@index([studentId])
+  @@index([subjectId])
+  @@index([semesterNo])
+}
+
+enum EventType {
+  EXAM
+  DEADLINE
+  HOLIDAY
+  OTHER
+}
+
+model AcademicEvent {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  date        DateTime
+  type        EventType
+  courseId    String?   // null = applies to every course
+  course      Course?   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  semesterNo  Int?      // null = applies to every semester of that course; set = scoped to one semester
+  createdById String
+  createdBy   User      @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+
+  @@index([courseId])
+  @@index([semesterNo])
+  @@index([date])
+}
+

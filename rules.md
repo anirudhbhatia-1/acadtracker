@@ -460,6 +460,20 @@ ADMIN_PASSWORD=replace_with_secure_password
 - URLs in resource links must be validated as proper URLs before saving.
 - Notes and resources are scoped by **both** `subjectId` AND `semesterNo` — always filter by both.
 
+### 9.1 Weekly Timetable Rules
+- Weekly class schedules (`ClassSchedule`) must be scoped strictly by both `studentId`, `subjectId`, and `semesterNo`.
+- When fetching or saving a timetable for a subject, always verify that the subject's `semesterNo` matches the student's `currentSemester`. Never allow saving class days for a subject belonging to another semester.
+- If a subject has 0 saved `ClassSchedule` rows, the frontend falls back to treating all 7 days of the week as valid class days (`[0, 1, 2, 3, 4, 5, 6]`).
+
+### 9.2 Academic Calendar Hub Scoping Rules
+- Academic events (`AcademicEvent`) support a 3-tier visibility scope controlled by `courseId` and `semesterNo`:
+  1. **Universal / Global:** `courseId` is `null` AND `semesterNo` is `null` (visible to every student across the entire university).
+  2. **Course-Wide:** `courseId` is set AND `semesterNo` is `null` (visible to all students enrolled in that specific course, across all semesters).
+  3. **Semester-Scoped:** both `courseId` and `semesterNo` are set (strictly isolated to students in that course AND that specific semester).
+- Student-facing queries (`GET /api/v1/academic-events`) MUST filter strictly server-side using `req.user.courseId` and `req.user.currentSemester`. Never trust client-supplied course or semester query params for student endpoints.
+- Student endpoints must only return public read-only fields (`id, title, description, date, type, courseId, semesterNo, course`) and must never leak `createdById` or internal admin metadata.
+- Admin creation, update, and deletion (`POST/PATCH/DELETE /api/v1/admin/academic-events`) require strict `ADMIN` role enforcement.
+
 ---
 
 ## 10. 🧪 Code Quality Rules

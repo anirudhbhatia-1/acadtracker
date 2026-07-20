@@ -502,6 +502,16 @@ Task
 ├── priority: [high | medium | low]
 ├── category: [assignment | exam | project | personal | other]
 └── status: [todo | in_progress | done]
+
+ClassSchedule
+├── id, student_id, subject_id, semester_number
+└── day_of_week: [0..6]
+
+AcademicEvent
+├── id, title, description, date
+├── type: [exam | deadline | holiday | other]
+├── course_id (null = global, set = specific course)
+└── semester_number (null = course-wide, set = specific semester)
 ```
 
 ---
@@ -518,8 +528,10 @@ Task
 | **Grades Page** | Student | Semester tabs → subject rows with letter grade dropdown → SGPA auto-display |
 | **CGPA Predictor** | Student | Input expected grades → graph of projected CGPA trajectory |
 | **Task Scheduler** | Both | List / Calendar / Kanban toggle; add-task modal |
+| **Weekly Timetable** | Student | Schedule setup screen where students pick class days per subject for current semester |
 | **Admin Dashboard** | Admin | Analytics: students enrolled, avg CGPA, at-risk count, attendance trends |
 | **Course Manager** | Admin | Course list → expand to see semesters → subjects with add/edit/delete |
+| **Academic Calendar Hub** | Admin | Admin CRUD for university events (Exams, Holidays, Deadlines) with Course/Semester scoping |
 | **Student Directory** | Admin | Searchable/filterable student table → click row to open profile |
 | **Student Profile View** | Admin | Full profile: attendance, grades, CGPA, task list |
 
@@ -576,6 +588,8 @@ Task
 | Task Scheduler | Tasks appear on correct dates; overdue tasks highlighted |
 | Course Manager | Subjects added/deleted by admin reflect immediately for students |
 | Admin Monitor | Admin views full student profile; student cannot access others' data |
+| Weekly Timetable | Student schedule setup scopes strictly by current semester; unscheduled subjects fallback to all 7 days |
+| Academic Calendar Hub | Events scope by `courseId` & `semesterNo` and render as read-only chips in student calendar without counting towards personal due tasks |
 | Role Security | No cross-role data access confirmed via security testing |
 
 ---
