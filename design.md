@@ -225,6 +225,7 @@ Dense: `p-2` cell padding, `text-sm`, zebra-striped rows (`even:bg-slate-50`), s
 ### 6.9 Calendar (React Big Calendar)
 
 Restyled to match tokens: today column tinted `paper`/`chalk-teal` at 10% opacity, task chips colored by `priority` (High = `status-critical`, Medium = `status-warning`, Low = `slate-400`), overdue tasks get a small red corner badge, not a full red chip (keeps the calendar scannable).
+University-wide or course/semester-scoped `AcademicEvent` chips render alongside tasks using `status-info` (`#3E6FD9` / `bg-info-tint`) to stay visually distinct from personal tasks. Clicking an academic event chip opens a read-only details popover with no edit/delete options for students. Academic events do not count toward the personal "Tasks Due Soon" total.
 
 ### 6.10 Kanban Board (Task Scheduler)
 
@@ -278,6 +279,12 @@ Two-pane layout: left = course list (click to expand semesters as a tree), right
 
 ### 7.11 Student Directory / Student Profile View
 Directory: searchable/filterable dense table (per §6.7). Clicking a row opens Student Profile as a full page (not a modal, given the amount of data) — tabs for Attendance / Grades / Tasks within the profile, reusing the same components as the student's own pages, so admin and student data never look like two different products.
+
+### 7.12 Weekly Timetable Setup
+Student schedule screen where subjects in the student's current semester are listed with Monday through Saturday day-picker buttons. Selecting class days updates the `ClassSchedule` records strictly scoped to current semester, which drives attendance session generation.
+
+### 7.13 Academic Calendar Manager (Admin)
+Admin page (`/admin/academic-calendar`) featuring full CRUD table for university-wide, course-wide, and semester-isolated events (`EXAM`, `DEADLINE`, `HOLIDAY`, `OTHER`). Each row displays scope tags (`All Students`, `Course X only`, or `Course X — Sem Y only`). Includes scope filter dropdowns.
 
 ---
 

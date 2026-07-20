@@ -15,6 +15,8 @@ const predictorRoutes = require('./modules/predictor/predictor.routes');
 const notesRoutes = require('./modules/notes/notes.routes');
 const resourcesRoutes = require('./modules/resources/resources.routes');
 const adminRoutes = require('./modules/admin/admin.routes');
+const scheduleRoutes = require('./modules/schedule/schedule.routes');
+const { studentRouter: academicEventRoutes, adminRouter: adminAcademicEventRoutes } = require('./modules/academic-event/academic-event.routes');
 
 const app = express();
 
@@ -87,6 +89,9 @@ app.use('/api/v1/predictor', predictorRoutes);
 app.use('/api/v1/notes', notesRoutes);
 app.use('/api/v1/resources', resourcesRoutes);
 app.use('/api/v1/admin', adminRoutes);
+app.use('/api/v1/schedule', scheduleRoutes);
+app.use('/api/v1/academic-events', academicEventRoutes);
+app.use('/api/v1/admin/academic-events', adminAcademicEventRoutes);
 
 // 404 handler for undefined endpoints
 app.use((req, res) => {

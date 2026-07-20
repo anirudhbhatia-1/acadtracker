@@ -64,7 +64,15 @@ const AttendanceLedgerStrip = ({
     setOpenPopoverSession(null);
   }, [isEditing]);
 
-  const { held, upcoming } = generateSessions(attendedClasses, totalClasses, records, updatedAt, maxSessions, condensed);
+  const { schedules = [] } = useAcademicStore();
+  const scheduleDays = React.useMemo(() => {
+    const saved = schedules
+      .filter((sc) => sc.subjectId === subjectId && Number(sc.semesterNo) === Number(semesterNo))
+      .map((sc) => Number(sc.dayOfWeek));
+    return saved.length > 0 ? saved : null;
+  }, [schedules, subjectId, semesterNo]);
+
+  const { held, upcoming } = generateSessions(attendedClasses, totalClasses, records, updatedAt, maxSessions, condensed, scheduleDays);
   const allSessionsCondensed = [...held, ...upcoming];
 
   const handleCellClick = (e, session) => {

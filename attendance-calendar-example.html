@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Attendance Calendar Entry — Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#2B3A67; --chalk:#2E8B8B; --paper:#F3F4F7;
+    --safe:#2F9E64; --warning:#E8A33D; --critical:#D64545;
+    --surface:#FFFFFF; --surface-2:#FAFAFB; --border:#E2E5EA;
+    --text:#1E2433; --text-muted:#64748B; --text-soft:#B8BCC6;
+    --safe-tint:#EAF7EF; --crit-tint:#FBEAEA;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Inter',sans-serif;background:var(--paper);color:var(--text);padding:32px 20px;-webkit-font-smoothing:antialiased;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  .wrap{max-width:520px;margin:0 auto;}
+  h1{font-family:'Fraunces',serif;font-size:20px;font-weight:600;margin:0 0 4px;}
+  .sub{color:var(--text-muted);font-size:13px;margin:0 0 18px;}
+  .note{background:var(--surface);border:1px dashed var(--border);border-radius:10px;padding:12px 16px;
+    font-size:12.5px;color:var(--text-muted);margin-bottom:20px;line-height:1.5;}
+  .note b{color:var(--text);}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 22px;
+    box-shadow:0 1px 2px rgba(30,36,51,.06);}
+  .card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px;}
+  .subj-name{font-size:15px;font-weight:600;}
+  .subj-meta{font-size:11.5px;color:var(--text-soft);margin-top:3px;}
+  .cal-btn{display:flex;align-items:center;gap:6px;background:var(--ink);color:#fff;border:none;border-radius:7px;
+    padding:8px 13px;font-size:12.5px;font-weight:600;cursor:pointer;flex-shrink:0;}
+  .cal-btn svg{width:14px;height:14px;}
+
+  .pct-row{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+  .pct{font-family:'Fraunces',serif;font-size:22px;font-weight:600;}
+  .badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;font-size:11.5px;font-weight:600;background:var(--safe-tint);color:var(--safe);}
+
+  .ledger{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;}
+  .lsq{width:15px;height:15px;border-radius:4px;}
+  .lsq.present{background:var(--safe);}
+  .lsq.absent{background:var(--crit-tint);border:2px solid var(--critical);}
+  .lsq.upcoming{background:transparent;border:1.5px dashed var(--border);}
+  .foot{font-size:12px;color:var(--text-muted);}
+
+  /* Modal */
+  .overlay{position:fixed;inset:0;background:rgba(20,22,31,.45);display:none;align-items:center;justify-content:center;z-index:50;}
+  .overlay.show{display:flex;}
+  .modal{background:var(--surface);border-radius:14px;width:400px;max-width:92vw;box-shadow:0 20px 60px rgba(0,0,0,.3);
+    animation:pop .15s ease;}
+  @keyframes pop{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
+  .modal-head{padding:18px 20px 4px;}
+  .modal-head h3{font-family:'Fraunces',serif;font-size:17px;font-weight:600;margin:0 0 2px;}
+  .modal-head p{font-size:12px;color:var(--text-muted);margin:0 0 14px;}
+  .cal-nav{display:flex;align-items:center;justify-content:space-between;padding:0 20px 10px;}
+  .cal-nav button{background:none;border:1px solid var(--border);border-radius:6px;width:26px;height:26px;cursor:pointer;color:var(--text-muted);}
+  .cal-nav .month{font-size:13px;font-weight:600;}
+  .cal-grid{padding:0 20px;}
+  .cal-head-row{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:4px;}
+  .cal-head-row div{text-align:center;font-size:10px;font-weight:600;color:var(--text-soft);padding:4px 0;}
+  .cal-body{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+  .day{aspect-ratio:1;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;
+    font-family:'IBM Plex Mono',monospace;position:relative;color:var(--text-soft);}
+  .day.empty{visibility:hidden;}
+  .day.non-class{color:var(--text-soft);}
+  .day.class-day{cursor:pointer;color:var(--text);border:1.5px dashed var(--border);}
+  .day.class-day:hover{border-color:var(--chalk);}
+  .day.present{background:var(--safe);color:#fff;border:none;}
+  .day.absent{background:var(--crit-tint);color:var(--critical);border:2px solid var(--critical);}
+  .day.today{outline:2px solid var(--ink);outline-offset:1px;}
+
+  .quickmenu{position:absolute;z-index:10;background:var(--text);color:#fff;border-radius:8px;padding:8px;
+    font-size:12px;box-shadow:0 8px 24px rgba(0,0,0,.25);display:flex;flex-direction:column;gap:4px;min-width:150px;}
+  .quickmenu .date-lbl{font-weight:600;padding:2px 6px 6px;border-bottom:1px solid rgba(255,255,255,.15);margin-bottom:2px;}
+  .quickmenu button{background:none;border:none;color:#fff;text-align:left;padding:6px 8px;border-radius:5px;
+    font-size:12px;cursor:pointer;display:flex;align-items:center;gap:7px;}
+  .quickmenu button:hover{background:rgba(255,255,255,.12);}
+  .quickmenu button.present-opt .dot{background:var(--safe);}
+  .quickmenu button.absent-opt .dot{background:var(--critical);}
+  .quickmenu button.clear-opt .dot{background:var(--text-soft);}
+  .quickmenu .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .confirm-row{padding:6px 8px 2px;font-size:11px;color:#B8BCC6;border-top:1px solid rgba(255,255,255,.15);margin-top:2px;}
+  .confirm-row button{display:inline;padding:2px 4px;font-weight:600;color:var(--chalk);}
+
+  .legend{display:flex;gap:14px;font-size:11px;color:var(--text-muted);padding:14px 20px 0;flex-wrap:wrap;}
+  .legend span{display:inline-flex;align-items:center;gap:5px;}
+  .legend .lsq{width:10px;height:10px;}
+  .modal-foot{display:flex;justify-content:flex-end;padding:16px 20px 20px;}
+  .done-btn{background:var(--ink);color:#fff;border:none;border-radius:7px;padding:9px 18px;font-size:13px;font-weight:600;cursor:pointer;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Attendance</h1>
+  <p class="sub">This is how the card looks normally — unchanged. Click the calendar button to try the new entry mode.</p>
+  <div class="note"><b>Try it:</b> click "Manage on Calendar," click any dashed (scheduled) or colored (logged) day, set or clear its status, then click "Done" — the card behind it updates and looks exactly like it did before, just with your changes reflected.</div>
+
+  <div class="card">
+    <div class="card-top">
+      <div>
+        <div class="subj-name">Database Management Systems</div>
+        <div class="subj-meta mono">BCO010B · Theory</div>
+      </div>
+      <button class="cal-btn" onclick="openCal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>
+        Manage on Calendar
+      </button>
+    </div>
+    <div class="pct-row">
+      <div class="pct mono" id="pctLabel">92.9%</div>
+      <span class="badge" id="badge">Safe</span>
+    </div>
+    <div class="ledger" id="ledger"></div>
+    <div class="foot mono" id="foot">13 attended / 14 held</div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Database Management Systems</h3>
+      <p>Click a class day to log, change, or clear attendance.</p>
+    </div>
+    <div class="cal-nav">
+      <button onclick="closeMenu()">‹</button>
+      <div class="month">July 2026</div>
+      <button onclick="closeMenu()">›</button>
+    </div>
+    <div class="cal-grid">
+      <div class="cal-head-row">
+        <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
+      </div>
+      <div class="cal-body" id="calBody"></div>
+    </div>
+    <div class="legend">
+      <span><span class="lsq present"></span> Present</span>
+      <span><span class="lsq absent"></span> Absent</span>
+      <span><span class="lsq upcoming"></span> Scheduled</span>
+    </div>
+    <div class="modal-foot">
+      <button class="done-btn" onclick="closeCal()">Done</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// July 2026: 1st is a Wednesday
+const year=2026, month=6; // 0-indexed = July
+const firstDayOffset = 3; // Sun=0..Wed=3
+const daysInMonth = 31;
+const today = 16;
+
+// class days: every day is available to mark — this demo does NOT assume a fixed weekly
+// pattern (e.g. "Mon/Wed/Fri only"), because real schedules vary by subject (Tue/Thu lectures,
+// Saturday labs, makeup classes). If the real app has actual per-subject schedule data, use
+// that instead of allowing every day — but never hardcode a guessed weekly pattern like this
+// demo previously did.
+function isClassDay(d){
+  return true;
+}
+
+// seeded attendance state for class days
+let records = {}; // day -> 'present' | 'absent' | undefined(scheduled)
+[1,3,6,8,10,13,15].forEach(d=>records[d]='present');
+records[15] = 'absent'; // one miss for realism, keep 13/14 present overall by adjusting below
+records[6] = 'present';
+// past class days up to 15th are logged, 17,20,22,24,27,29,31 remain scheduled
+
+let openMenu = null;
+function closeMenu(){ if(openMenu){ openMenu.remove(); openMenu=null; } }
+
+function renderCalendar(){
+  const body = document.getElementById('calBody');
+  let html='';
+  for(let i=0;i<firstDayOffset;i++) html += `<div class="day empty"></div>`;
+  for(let d=1; d<=daysInMonth; d++){
+    if(!isClassDay(d)){
+      html += `<div class="day non-class">${d}</div>`;
+      continue;
+    }
+    const status = records[d];
+    const isToday = d===today;
+    let cls = 'class-day';
+    if(status==='present') cls='present';
+    if(status==='absent') cls='absent';
+    html += `<div class="day ${cls} ${isToday?'today':''}" onclick="dayClick(event, ${d})">${d}</div>`;
+  }
+  body.innerHTML = html;
+}
+
+function dayClick(evt, day){
+  evt.stopPropagation();
+  closeMenu();
+  const status = records[day];
+  const rect = evt.target.getBoundingClientRect();
+  const modalRect = document.querySelector('.modal').getBoundingClientRect();
+  const menu = document.createElement('div');
+  menu.className = 'quickmenu';
+  menu.style.left = Math.min(rect.left - modalRect.left, modalRect.width-160) + 'px';
+  menu.style.top = (rect.bottom - modalRect.top + 6) + 'px';
+
+  const dateLbl = `July ${day}, 2026`;
+
+  if(!status){
+    // scheduled, not yet logged (or future) — simple set, no confirm needed
+    menu.innerHTML = `
+      <div class="date-lbl">${dateLbl}</div>
+      <button class="present-opt" onclick="setStatus(${day},'present')"><span class="dot"></span>Mark Present</button>
+      <button class="absent-opt" onclick="setStatus(${day},'absent')"><span class="dot"></span>Mark Absent</button>`;
+  } else {
+    // already logged — require confirm to change/clear
+    menu.innerHTML = `
+      <div class="date-lbl">${dateLbl} — currently ${status==='present'?'Present':'Absent'}</div>
+      <button class="${status==='present'?'absent-opt':'present-opt'}" onclick="confirmChange(${day},'${status==='present'?'absent':'present'}')">
+        <span class="dot"></span>Change to ${status==='present'?'Absent':'Present'}</button>
+      <button class="clear-opt" onclick="confirmChange(${day},null)"><span class="dot"></span>Clear entry</button>`;
+  }
+  document.querySelector('.modal').appendChild(menu);
+  openMenu = menu;
+}
+
+function confirmChange(day, newStatus){
+  const menu = openMenu;
+  const label = newStatus ? `Confirm: mark ${newStatus}?` : 'Confirm: clear this entry?';
+  menu.innerHTML = `<div class="confirm-row">${label} <button onclick="setStatus(${day}, ${newStatus?`'${newStatus}'`:null})">Yes, confirm</button></div>`;
+}
+
+function setStatus(day, status){
+  if(status) records[day] = status; else delete records[day];
+  closeMenu();
+  renderCalendar();
+  renderCard();
+  toast(`July ${day}, 2026 ${status ? 'set to ' + status : 'cleared'}`);
+}
+
+document.addEventListener('click', (e)=>{
+  if(!e.target.closest('.day') && !e.target.closest('.quickmenu')) closeMenu();
+});
+
+function renderCard(){
+  const days = Object.keys(records).map(Number).sort((a,b)=>a-b);
+  const present = days.filter(d=>records[d]==='present').length;
+  const held = days.length;
+  const pct = held ? (present/held*100) : 0;
+  document.getElementById('pctLabel').textContent = pct.toFixed(1)+'%';
+  document.getElementById('foot').textContent = `${present} attended / ${held} held`;
+  const badge = document.getElementById('badge');
+  let cls='safe', label='Safe';
+  if(pct<65){cls='critical';label='Critical';}
+  else if(pct<75){cls='warning';label='Warning';}
+  badge.textContent = label;
+  badge.style.background = cls==='safe' ? '#EAF7EF' : cls==='warning' ? '#FDF3E4' : '#FBEAEA';
+  badge.style.color = cls==='safe' ? '#2F9E64' : cls==='warning' ? '#E8A33D' : '#D64545';
+
+  // ledger: all class days in order, present/absent/upcoming
+  const allClassDays=[];
+  for(let d=1; d<=daysInMonth; d++) if(isClassDay(d)) allClassDays.push(d);
+  const squares = allClassDays.map(d=>{
+    const s = records[d];
+    const cls = s==='present' ? 'present' : s==='absent' ? 'absent' : 'upcoming';
+    return `<div class="lsq ${cls}"></div>`;
+  }).join('');
+  document.getElementById('ledger').innerHTML = squares;
+}
+
+function openCal(){
+  document.getElementById('overlay').classList.add('show');
+  renderCalendar();
+}
+function closeCal(){
+  closeMenu();
+  document.getElementById('overlay').classList.remove('show');
+}
+
+function toast(msg){
+  const t=document.createElement('div');
+  t.textContent=msg;
+  t.style.cssText='position:fixed;top:20px;right:20px;background:#1E2433;color:#fff;padding:10px 16px;border-radius:8px;font-size:13px;font-family:Inter,sans-serif;z-index:100;box-shadow:0 8px 24px rgba(0,0,0,.2);';
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),2200);
+}
+
+renderCard();
+</script>
+</body>
+</html>

@@ -45,11 +45,28 @@ function addDays(base, n) {
   return d;
 }
 
+function getNextScheduledDate(baseDate, offsetDays, scheduleDays) {
+  if (!Array.isArray(scheduleDays) || scheduleDays.length === 0) {
+    return addDays(baseDate, offsetDays);
+  }
+  const direction = offsetDays >= 0 ? 1 : -1;
+  let count = Math.abs(offsetDays);
+  let current = new Date(baseDate);
+  while (count > 0) {
+    current = addDays(current, direction);
+    if (scheduleDays.includes(current.getDay())) {
+      count--;
+    }
+  }
+  return current;
+}
+
 /**
  * Shared deterministic session generator for both AttendanceLedgerStrip and CalendarView.
  * Ensures identical date and status mappings between ledger strip and calendar grid.
+ * @param {Array<number>|null} scheduleDays - Array of allowed dayOfWeek integers (0=Sun..6=Sat). Empty/null allows all days.
  */
-export const generateSessions = (attendedClasses = 0, totalClasses = 0, records = [], updatedAt = null, maxSessions = 28, condensed = false) => {
+export const generateSessions = (attendedClasses = 0, totalClasses = 0, records = [], updatedAt = null, maxSessions = 28, condensed = false, scheduleDays = null) => {
   const baseDate = updatedAt ? new Date(updatedAt) : new Date();
 
   if (records && records.length > 0) {
@@ -57,7 +74,7 @@ export const generateSessions = (attendedClasses = 0, totalClasses = 0, records 
       id: rec.id || `rec-${i}`,
       type: rec.status === 'PRESENT' ? 'present' : 'absent',
       label: `Class ${i + 1} — ${rec.status === 'PRESENT' ? 'Attended' : 'Absent'}`,
-      dateObj: rec.date || rec.createdAt ? new Date(rec.date || rec.createdAt) : addDays(baseDate, (i - records.length + 1)),
+      dateObj: rec.date || rec.createdAt ? new Date(rec.date || rec.createdAt) : getNextScheduledDate(baseDate, (i - records.length + 1), scheduleDays),
     }));
 
     const lastHeldDate = actualList.length > 0
@@ -68,7 +85,7 @@ export const generateSessions = (attendedClasses = 0, totalClasses = 0, records 
       id: `up-${i}`,
       type: 'upcoming',
       label: `Class ${actualList.length + i + 1} — Scheduled`,
-      dateObj: addDays(lastHeldDate, (i + 1)),
+      dateObj: getNextScheduledDate(lastHeldDate, (i + 1), scheduleDays),
     }));
 
     if (condensed) {
@@ -92,7 +109,7 @@ export const generateSessions = (attendedClasses = 0, totalClasses = 0, records 
 
   const heldList = [...presentList, ...absentList].map((s, i, arr) => ({
     ...s,
-    dateObj: addDays(baseDate, (i - arr.length + 1)),
+    dateObj: getNextScheduledDate(baseDate, (i - arr.length + 1), scheduleDays),
   }));
 
   const lastHeldDate = heldList.length > 0
@@ -104,7 +121,7 @@ export const generateSessions = (attendedClasses = 0, totalClasses = 0, records 
     id: `u-${i}`,
     type: 'upcoming',
     label: `Class ${heldList.length + i + 1} — Scheduled`,
-    dateObj: addDays(lastHeldDate, (i + 1)),
+    dateObj: getNextScheduledDate(lastHeldDate, (i + 1), scheduleDays),
   }));
 
   if (condensed) {

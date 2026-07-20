@@ -8,9 +8,11 @@ import AttendanceEditModal from '@/components/AttendanceEditModal';
 import CalendarView from '@/components/CalendarView';
 import { AsyncState, EmptyState } from '@/components/common/AsyncState';
 import { Skeleton } from '@/components/ui/skeleton';
-import { CalendarCheck, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { CalendarCheck, AlertTriangle, CheckCircle2, Calendar } from 'lucide-react';
 
 const Attendance = () => {
+  const navigate = useNavigate();
   const { user } = useAuthStore();
   const { subjects, attendance, fetchAcademicData, logAttendance, isLoading } = useAcademicStore();
   const [selectedSemester, setSelectedSemester] = useState(user?.currentSemester || 1);
@@ -85,6 +87,14 @@ const Attendance = () => {
             </button>
           ))}
         </div>
+        <Button
+          onClick={() => navigate('/student/schedule')}
+          variant="outline"
+          className="h-8 px-3 text-xs font-semibold shrink-0"
+        >
+          <Calendar className="w-3.5 h-3.5 mr-1.5 text-ink dark:text-chalk-teal" />
+          <span>Setup Timetable</span>
+        </Button>
       </div>
 
       {/* Attendance Ledger Card (§4 & §7.4) */}

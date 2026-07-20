@@ -21,8 +21,18 @@ const localizer = dateFnsLocalizer({
 });
 
 const AttendanceCalendarModal = ({ subject, record: initialRecord, onClose }) => {
-  const { attendance } = useAcademicStore();
+  const { attendance, schedules = [] } = useAcademicStore();
   const currentRecord = attendance.find((att) => att.id === initialRecord?.id || att.subjectId === subject?.id) || initialRecord;
+
+  const scheduleDays = useMemo(() => {
+    const subId = subject?.id || currentRecord?.subjectId;
+    const semNo = subject?.semesterNo || currentRecord?.semesterNo;
+    if (!subId || !semNo) return null;
+    const saved = schedules
+      .filter((sc) => sc.subjectId === subId && Number(sc.semesterNo) === Number(semNo))
+      .map((sc) => Number(sc.dayOfWeek));
+    return saved.length > 0 ? saved : null;
+  }, [schedules, subject, currentRecord]);
 
   const [currentMonthDate, setCurrentMonthDate] = useState(() => new Date());
   const [openMenu, setOpenMenu] = useState(null);
@@ -48,9 +58,10 @@ const AttendanceCalendarModal = ({ subject, record: initialRecord, onClose }) =>
       currentRecord?.records || [],
       currentRecord?.updatedAt,
       28,
-      false
+      false,
+      scheduleDays
     );
-  }, [currentRecord]);
+  }, [currentRecord, scheduleDays]);
 
   useEffect(() => {
     const realRecordsCount = Array.isArray(currentRecord?.records) && currentRecord.records.length > 0
@@ -187,6 +198,7 @@ const AttendanceCalendarModal = ({ subject, record: initialRecord, onClose }) =>
               const dateObj = new Date(year, month, d);
               const dateStr = dateObj.toDateString();
               const isToday = dateStr === new Date().toDateString();
+              const dayOfWeek = dateObj.getDay();
 
               // Check real logged records first, or determine status from held/upcoming list
               const realMatch = Array.isArray(currentRecord?.records) && currentRecord.records.length > 0
@@ -196,16 +208,25 @@ const AttendanceCalendarModal = ({ subject, record: initialRecord, onClose }) =>
               const upcomingMatch = (!realMatch && !heldMatch) ? upcoming.find((s) => s.dateObj.toDateString() === dateStr) : null;
               const status = realMatch ? (realMatch.status === 'PRESENT' ? 'present' : 'absent') : (heldMatch ? heldMatch.type : (upcomingMatch ? 'upcoming' : undefined));
 
+              const isUnscheduled = scheduleDays !== null && !scheduleDays.includes(dayOfWeek);
+              const isDisabled = isUnscheduled && !status;
+
               return (
                 <div
                   key={d}
-                  onClick={(e) => handleDayClick(e, d, dateObj, status)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (!isDisabled) handleDayClick(e, d, dateObj, status);
+                  }}
                   className={cn(
-                    'day-cell aspect-square rounded-lg flex items-center justify-center text-xs font-mono transition-all cursor-pointer select-none',
+                    'day-cell aspect-square rounded-lg flex items-center justify-center text-xs font-mono transition-all select-none',
+                    isDisabled
+                      ? 'cursor-not-allowed opacity-35 bg-surface-2/40 border-none'
+                      : 'cursor-pointer',
                     status === 'present' && 'bg-status-safe text-white shadow-xs font-bold',
                     status === 'absent' && 'bg-crit-tint text-status-critical border-2 border-status-critical font-bold',
                     status === 'upcoming' && 'bg-transparent text-foreground border-[1.5px] border-dashed border-border hover:border-chalk-teal',
-                    !status && 'bg-transparent text-foreground/80 border-[1.5px] border-dashed border-border/60 hover:border-chalk-teal hover:text-foreground',
+                    !status && !isDisabled && 'bg-transparent text-foreground/80 border-[1.5px] border-dashed border-border/60 hover:border-chalk-teal hover:text-foreground',
                     isToday && 'ring-2 ring-ink dark:ring-chalk-teal ring-offset-1'
                   )}
                 >
@@ -315,22 +336,62 @@ const AttendanceCalendarModal = ({ subject, record: initialRecord, onClose }) =>
 
 const CalendarView = ({ onEditTask, onSelectDateSlot, mode = 'tasks', subject, record, onClose }) => {
   const { tasks } = useTaskStore();
+  const { academicEvents = [] } = useAcademicStore();
+  const [selectedAcademicEvent, setSelectedAcademicEvent] = useState(null);
 
   const events = useMemo(() => {
-    return tasks.map((task) => {
+    const taskEvents = tasks.map((task) => {
       const start = new Date(task.dueDate);
       const end = new Date(start.getTime() + 60 * 60 * 1000); // 1 hour duration block
       return {
-        id: task.id,
+        id: `task-${task.id}`,
         title: `${task.status === 'DONE' ? '✅ ' : task.isOverdue ? '⚠️ ' : ''}${task.title}`,
         start,
         end,
         resource: task,
+        isAcademicEvent: false,
       };
     });
-  }, [tasks]);
+
+    const academicEventChips = academicEvents.map((evt) => {
+      const start = new Date(evt.date);
+      const end = new Date(start.getTime() + 60 * 60 * 1000);
+      const typeIcons = {
+        EXAM: '📝',
+        DEADLINE: '⏰',
+        HOLIDAY: '🎉',
+        OTHER: '📢',
+      };
+      return {
+        id: `evt-${evt.id}`,
+        title: `${typeIcons[evt.type] || '📢'} [${evt.type}] ${evt.title}`,
+        start,
+        end,
+        resource: evt,
+        isAcademicEvent: true,
+      };
+    });
+
+    return [...taskEvents, ...academicEventChips];
+  }, [tasks, academicEvents]);
 
   const eventStyleGetter = (event) => {
+    if (event.isAcademicEvent) {
+      return {
+        style: {
+          backgroundColor: 'var(--status-info, #3E6FD9)',
+          borderColor: '#2B53A6',
+          borderWidth: '1px',
+          borderRadius: '8px',
+          color: '#ffffff',
+          fontSize: '12px',
+          fontWeight: 'bold',
+          padding: '2px 6px',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.15)',
+        },
+      };
+    }
+
     const task = event.resource;
     let backgroundColor = '#3b82f6'; // default blue
     let borderColor = '#2563eb';
@@ -369,7 +430,7 @@ const CalendarView = ({ onEditTask, onSelectDateSlot, mode = 'tasks', subject, r
   }
 
   return (
-    <div className="p-6 rounded-2xl bg-card border border-border shadow-lg min-h-[650px] calendar-dark-override">
+    <div className="relative p-6 rounded-2xl bg-card border border-border shadow-lg min-h-[650px] calendar-dark-override">
       <Calendar
         localizer={localizer}
         events={events}
@@ -377,12 +438,82 @@ const CalendarView = ({ onEditTask, onSelectDateSlot, mode = 'tasks', subject, r
         endAccessor="end"
         style={{ height: 620 }}
         selectable
-        onSelectEvent={(event) => onEditTask(event.resource)}
-        onSelectSlot={(slotInfo) => onSelectDateSlot(slotInfo.start)}
+        onSelectEvent={(event) => {
+          if (event.isAcademicEvent) {
+            setSelectedAcademicEvent(event.resource);
+          } else if (onEditTask) {
+            onEditTask(event.resource);
+          }
+        }}
+        onSelectSlot={(slotInfo) => {
+          if (onSelectDateSlot) onSelectDateSlot(slotInfo.start);
+        }}
         eventPropGetter={eventStyleGetter}
         views={['month', 'week', 'day']}
         defaultView="month"
       />
+
+      {/* Read-Only Academic Event Modal */}
+      {selectedAcademicEvent && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs animate-in fade-in-50 duration-150">
+          <div className="w-full max-w-md bg-surface border border-border rounded-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-150">
+            <div className="bg-info-tint border-b border-border py-4 px-6 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-status-info text-white">
+                  {selectedAcademicEvent.type}
+                </span>
+                <span className="text-xs font-semibold text-text-muted">University Event</span>
+              </div>
+              <button
+                onClick={() => setSelectedAcademicEvent(null)}
+                className="text-text-muted hover:text-foreground text-sm font-bold cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <h3 className="font-serif text-xl font-bold text-foreground">{selectedAcademicEvent.title}</h3>
+                <p className="text-xs font-mono font-medium text-status-info mt-1">
+                  📅 {new Date(selectedAcademicEvent.date).toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </p>
+              </div>
+
+              {selectedAcademicEvent.description && (
+                <div className="p-3 rounded-lg bg-surface-2 border border-border/80 text-xs text-foreground leading-relaxed">
+                  {selectedAcademicEvent.description}
+                </div>
+              )}
+
+              <div className="pt-2 border-t border-border flex items-center justify-between text-[11px] text-text-muted">
+                <span>Scope:</span>
+                <span className="font-semibold text-foreground">
+                  {!selectedAcademicEvent.courseId && !selectedAcademicEvent.semesterNo
+                    ? 'Global (All Students)'
+                    : selectedAcademicEvent.courseId && !selectedAcademicEvent.semesterNo
+                    ? `${selectedAcademicEvent.course?.code || 'Course'} Wide`
+                    : `${selectedAcademicEvent.course?.code || 'Course'} — Semester ${selectedAcademicEvent.semesterNo}`}
+                </span>
+              </div>
+
+              <div className="flex justify-end pt-2">
+                <button
+                  type="button"
+                  onClick={() => setSelectedAcademicEvent(null)}
+                  className="bg-ink dark:bg-chalk-teal text-white rounded-lg px-4 py-2 text-xs font-semibold cursor-pointer hover:opacity-90 transition-opacity"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
